@@ -9,7 +9,7 @@
 
 	<style type="text/css">
 	body {background-color:silver}
-	h1,h3,p,a,footer {font-family:verdana;text-align:center}
+	h1,h3,p,a,footer {font-family: Verdana, Geneva, sans-serif;text-align:center}
 	iframe{margin-left: 250px; margin-right: auto; display: block; border: 0;
 	vertical-align: middle; position: relative;
 	-webkit-box-sizing: border-box;
@@ -23,7 +23,7 @@
 
 <div1>
 	
-	<h1> YoTP </h1>
+	<h1> YoTP - Your Time Pass </h1>
 	
 	<script>
   (function() {
@@ -43,13 +43,28 @@
 	
 <div style="text-align:center" ng-app="">
 
-<p>Input video ID: <input type="text/html" ng-model="name"></p>
-<!-- <p>https://www.youtube-nocookie.com/embed/{{name}}</p> -->
-<a href="https://www.youtube-nocookie.com/embed/{{name}}?wmode=transparent&amp;autoplay=0&amp;html5=1" target="ytp"><span style="text-align:center">Click me for the video!</span></a>
+<p>Input video ID: <input type="text/html" ng-model="video"></p>
+<a href="https://www.youtube-nocookie.com/embed/{{video}}?wmode=transparent&amp;autoplay=0&amp;modestbranding=1;html5=1" target="yotp"><span style="text-align:center">Click me for the video!</span></a>
+
+<p>Input Playlist ID: <input type="text/html" ng-model="plist"></p>
+<a href="http://www.youtube-nocookie.com/embed?listType=playlist&list={{plist}};modestbranding=1" target="yotp"><span style="text-align:center">Click me for the playlist!
+</span></a>
+
+<p>Input Username: <input type="text/html" ng-model="uname"></p>
+<a href="https://www.youtube-nocookie.com/embed?listType=user_uploads&list={{uname}};modestbranding=1" target="yotp"><span style="text-align:center">Click me for the {{uname}}'s videos!
+</span></a>
+
+<p>Input you search query here: <input type="text/html" ng-model="query"></p>
+<a href="http://www.youtube-nocookie.com/embed?listType=search&list={{query}};modestbranding=1" target="yotp"><span style="text-align:center">Click me for the {{query}} videos!
+</span></a>
 
 <br>
 
-<iframe name="ytp" class="detail__media__vid" width="780" height="480" frameborder="0" scrolling="no" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="">
+<iframe name="yotp" class="detail__media__vid" width="800" height="480" frameborder="0" scrolling="no" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="";
+    left: 13%;
+    right: 13%;
+    margin-right: 250px;
+> 
 </iframe>
 
 </div>
