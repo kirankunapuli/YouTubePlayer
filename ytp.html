@@ -1,124 +1,191 @@
 <head>
 
-<!-- <script src = "angular.min.js"> </script> -->
+	<!-- <script src = "angular.min.js"> </script> -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.blue_grey-red.min.css" /> 
-<script src="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js"></script>
-<link rel="import" href="https://www.polymer-project.org/0.5/components/paper-ripple/paper-ripple.html">
-<link rel="import" href="http://www.polymer-project.org/components/core-icons/core-icons.html">
-<link rel="import" href="http://www.polymer-project.org/components/font-roboto/roboto.html">
-<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.blue_grey-red.min.css" />
+	<script src="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js"></script>
+	<link rel="import" href="https://www.polymer-project.org/0.5/components/paper-ripple/paper-ripple.html">
+	<link rel="import" href="http://www.polymer-project.org/components/core-icons/core-icons.html">
+	<link rel="import" href="http://www.polymer-project.org/components/font-roboto/roboto.html">
+	<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> -->
 
-<title> YoTP</title>
-<link rel="shortcut icon" type="image/png" href="http://i.imgur.com/wIhvuft.png" />
+	<title> YoTP</title>
+	<link rel="shortcut icon" type="image/png" href="http://i.imgur.com/wIhvuft.png" />
 
 	<style type="text/css">
-	body {background-color:silver}
-	h1,h3,p,a,footer {font-family: Verdana, Geneva, sans-serif;text-align:center}
-	iframe{margin-left: auto; margin-right: auto; display: block; border: 0;
-	vertical-align: middle; position: relative;
-	-webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;}
-	a:link {text-decoration: none;}
-	button {display: inline-block; position: relative; line-height: 32px; border-radius: 2px; background-color: #fff;}
-	button.raised { transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1); transition-delay: 0.2s; box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);}
-    button.raised:active {box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2); transition-delay: 0s;}
-	md-button {margin: 6px 8px 6px 8px; padding: 6px 6px 6px 6px; font-size: 14px;text-align: center;text-transform: uppercase;
-	text-decoration:none;border: none;outline: none;background-color: #fff; box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.26);}
-	table, th , td { border: 0.5px solid grey; border-collapse: collapse; padding: 12px; text-align: center; position: relative;}
-	table {width: 100%;}
-	table td:nth-child(odd) { background-color: #f2f2f2;}
-	table td:nth-child(even) {background-color: #f1f1f1;}
-	table td:hover {background-color: #ddd;}
+		body {
+			background-color: silver
+		}
+
+		h1,
+		h3,
+		p,
+		a,
+		footer {
+			font-family: Verdana, Geneva, sans-serif;
+			text-align: center
+		}
+
+		iframe {
+			margin-left: auto;
+			margin-right: auto;
+			display: block;
+			border: 0;
+			vertical-align: middle;
+			position: relative;
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+
+		a:link {
+			text-decoration: none;
+		}
+
+		button {
+			display: inline-block;
+			position: relative;
+			line-height: 32px;
+			border-radius: 2px;
+			background-color: #fff;
+		}
+
+		button.raised {
+			transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+			transition-delay: 0.2s;
+			box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+		}
+
+		button.raised:active {
+			box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+			transition-delay: 0s;
+		}
+
+		md-button {
+			margin: 6px 8px 6px 8px;
+			padding: 6px 6px 6px 6px;
+			font-size: 14px;
+			text-align: center;
+			text-transform: uppercase;
+			text-decoration: none;
+			border: none;
+			outline: none;
+			background-color: #fff;
+			box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.26);
+		}
+
+		table,
+		th,
+		td {
+			border: 0.5px solid grey;
+			border-collapse: collapse;
+			padding: 12px;
+			text-align: center;
+			position: relative;
+		}
+
+		table {
+			width: 100%;
+		}
+
+		table td:nth-child(odd) {
+			background-color: #f2f2f2;
+		}
+
+		table td:nth-child(even) {
+			background-color: #f1f1f1;
+		}
+
+		table td:hover {
+			background-color: #ddd;
+		}
 	</style>
 
 </head>
 
 <body>
 
-<div1>
-	<A HREF="javascript:history.go(0)">
-	<h1> YoTP - Your Time Pass </h1>
-	</A>
-	
-	<script>
-  (function() {
-    var cx = '004488094107826005610:qizef8dq4is';
-    var gcse = document.createElement('script');
-    gcse.type = 'text/javascript';
-    gcse.async = true;
-    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
-        '//www.google.com/cse/cse.js?cx=' + cx;
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(gcse, s);
-  })();
-</script>
-<gcse:search></gcse:search>
+	<div1>
+		<A HREF="javascript:history.go(0)">
+			<h1> YoTP - Your Time Pass </h1>
+		</A>
 
-	</div1>	
-	
-<div style="text-align:center" ng-app="">
+		<script>
+			(function() {
+				var cx = '004488094107826005610:qizef8dq4is';
+				var gcse = document.createElement('script');
+				gcse.type = 'text/javascript';
+				gcse.async = true;
+				gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+					'//www.google.com/cse/cse.js?cx=' + cx;
+				var s = document.getElementsByTagName('script')[0];
+				s.parentNode.insertBefore(gcse, s);
+			})();
+		</script>
+		<gcse:search></gcse:search>
 
-<table>
-<tr>
-<td>
-<p>Input video ID: <input type="text/html" ng-model="video"></p>
-<md-button>
-<a href="https://www.youtube-nocookie.com/embed/{{video}}?wmode=transparent&amp;autoplay=0&amp;version=3&amp;modestbranding=1&autohide=1&color=white;html5=1" target="yotp"><span style="text-align:center">Click me for the video!</span></a>
-</md-button>
-</td>
+	</div1>
 
-<!-- <p>Input Channel ID: <input type="text/html" ng-model="chnl"></p>
+	<div style="text-align:center" ng-app="">
+
+		<table>
+			<tr>
+				<td>
+					<p>Input video ID: <input type="text/html" ng-model="video"></p>
+					<md-button>
+						<a href="https://www.youtube-nocookie.com/embed/{{video}}?wmode=transparent&amp;autoplay=0&amp;version=3&amp;modestbranding=1&autohide=1&color=white;html5=1" target="yotp"><span style="text-align:center">Click me for the video!</span></a>
+					</md-button>
+				</td>
+
+				<!-- <p>Input Channel ID: <input type="text/html" ng-model="chnl"></p>
 <a href="http://www.youtube-nocookie.com/channel/{{chnl}};modestbranding=1" target="yotp"><span style="text-align:center">Click me for the Channel's videos!
 </span></a> -->
 
-<td>
-<p>Input Playlist ID: <input type="text/html" ng-model="plist"></p>
-<md-button>
-<a href="http://www.youtube-nocookie.com/embed?listType=playlist&list={{plist}};modestbranding=1&autohide=1&color=white" target="yotp"><span style="text-align:center">Click me for the playlist!</span></a>
-</md-button>
-</td>
+				<td>
+					<p>Input Playlist ID: <input type="text/html" ng-model="plist"></p>
+					<md-button>
+						<a href="http://www.youtube-nocookie.com/embed?listType=playlist&list={{plist}};modestbranding=1&autohide=1&color=white" target="yotp"><span style="text-align:center">Click me for the playlist!</span></a>
+					</md-button>
+				</td>
 
-<td>
-<p>Input Username: <input type="text/html" ng-model="uname"></p>
-<md-button>
-<a href="https://www.youtube-nocookie.com/embed?listType=user_uploads&list={{uname}};modestbranding=1&autohide=1&color=white" target="yotp"><span style="text-align:center">Click me for the {{uname}}'s videos!</span></a>
-</md-button>
-</td>
+				<td>
+					<p>Input Username: <input type="text/html" ng-model="uname"></p>
+					<md-button>
+						<a href="https://www.youtube-nocookie.com/embed?listType=user_uploads&list={{uname}};modestbranding=1&autohide=1&color=white" target="yotp"><span style="text-align:center">Click me for the {{uname}}'s videos!</span></a>
+					</md-button>
+				</td>
 
-<td>
-<p>Input your search query here: <input type="text/html" ng-model="query"></p>
-<md-button>
-<a href="https://www.youtube.com/embed?listType=search&list={{query}};modestbranding=1&autohide=1&color=white" target="yotp"><span style="text-align:center">Click me for the {{query}} videos!</span></a>
-</md-button>
-</td>
-</tr>
-</table>
-<br>
+				<td>
+					<p>Input your search query here: <input type="text/html" ng-model="query"></p>
+					<md-button>
+						<a href="https://www.youtube.com/embed?listType=search&list={{query}};modestbranding=1&autohide=1&color=white" target="yotp"><span style="text-align:center">Click me for the {{query}} videos!</span></a>
+					</md-button>
+				</td>
+			</tr>
+		</table>
+		<br>
 
-<iframe name="yotp" class="detail__media__vid" width="1152" height="648" frameborder="0" scrolling="no" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="">
+		<iframe name="yotp" class="detail__media__vid" width="1152" height="648" frameborder="0" scrolling="no" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="">
 </iframe>
 
 
-</div>
+	</div>
 
-<script type="text/javascript" src="fluidvids.min.js"></script>
-<script>
-    fluidvids.init({
-      selector: ['iframe'],
-      players: ['www.youtube.com', 'player.vimeo.com', 'www.youtube-nocookie.com']
-    });
-    </script>
-<br>
-	
-<footer>
-  <p>Developed by: <a href="http://kirankunapuli.github.io/">Kiran Kunapuli V S</p></a>
-  <p>Tested working on Chrome.<br>
-  Version V0.9 Beta</p>
-  <div style="text-align:center">Icons made by <a href="http://www.flaticon.com/authors/icomoon" title="Icomoon">Icomoon</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
+	<script type="text/javascript" src="fluidvids.min.js"></script>
+	<script>
+		fluidvids.init({
+			selector: ['iframe'],
+			players: ['www.youtube.com', 'player.vimeo.com', 'www.youtube-nocookie.com']
+		});
+	</script>
+	<br>
+
+	<footer>
+		<p>Developed by: <a href="http://kirankunapuli.github.io/">Kiran Kunapuli V S</p></a>
+			<p>Tested working on Chrome.<br> Version V0.9 Beta</p>
+			<div style="text-align:center">Icons made by <a href="http://www.flaticon.com/authors/icomoon" title="Icomoon">Icomoon</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
 	</footer>
 
 
