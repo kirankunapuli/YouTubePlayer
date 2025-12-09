@@ -69,7 +69,8 @@ app.get('/api/proxy-image', async (req, res) => {
 });
 
 // Fallback to index.html for SPA routing
-app.get('*', (req, res) => {
+// Using app.use() without path avoids path-to-regexp parsing errors (e.g. "Missing parameter name at index 1")
+app.use((req, res) => {
     res.sendFile(join(__dirname, 'dist', 'index.html'));
 });
 
