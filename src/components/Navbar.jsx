@@ -1,0 +1,227 @@
+import { useState, useEffect } from 'react';
+
+const Navbar = ({
+    onPlay,
+    onSearch,
+    activeTab,
+    setActiveTab,
+    theme,
+    toggleTheme,
+    theaterMode,
+    toggleTheater
+}) => {
+    const [inputVal, setInputVal] = useState('');
+
+    const extractId = (val, type) => {
+        if (!val) return '';
+        if (type === 'video') {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = val.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : val;
+        }
+        if (type === 'playlist') {
+            const regExp = /[?&]list=([^#&?]+)/;
+            const match = val.match(regExp);
+            return match ? match[1] : val;
+        }
+        return val;
+    };
+
+    const handleAction = (e) => {
+        e.preventDefault();
+        if (activeTab === 'search') {
+            onSearch(inputVal);
+        } else {
+            const id = extractId(inputVal, activeTab);
+            if (id) {
+                onPlay(id, activeTab);
+            }
+        }
+    };
+
+    useEffect(() => {
+        setInputVal('');
+    }, [activeTab]);
+
+    const navItems = [
+        { id: 'search', icon: '🔍', label: 'Search YoTP Neo', color: '#00d2ff', placeholder: 'Search YoTP Neo...' },
+        { id: 'video', icon: '▶', label: 'Video ID', color: '#ff0000', placeholder: 'Paste Video URL/ID' },
+        { id: 'playlist', icon: '📜', label: 'Playlist', color: '#a020f0', placeholder: 'Paste Playlist ID' },
+        { id: 'channel', icon: '👤', label: 'Channel', color: '#ff8c00', placeholder: 'Paste Channel Name' },
+        { id: 'google', icon: 'G', label: 'Google Search', color: '#4285f4', placeholder: 'Use Google Search below' }
+    ];
+
+    /* Ambient color Logic handled by parent App now, or partly here? 
+       Navbar controls activeTab ambient color, App controls Video ambient color.
+       Priority: Video > activeTab.
+    */
+
+    // Get active item color for dynamic branding
+    const activeItem = navItems.find(item => item.id === activeTab);
+    const brandColor = activeItem ? activeItem.color : 'var(--accent-color)';
+
+    return (
+        <nav className="glass-panel" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            borderRadius: 0,
+            borderTop: 'none',
+            borderLeft: 'none',
+            borderRight: 'none',
+            margin: 0,
+            padding: '0.8rem 2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'var(--navbar-bg)',
+            backdropFilter: 'blur(20px)',
+            borderBottom: '1px solid var(--glass-border)'
+        }}>
+            {/* Branding */}
+            <div className="logo" style={{ fontSize: '1.5rem', fontWeight: 800, whiteSpace: 'nowrap', minWidth: '150px' }}>
+                <span style={{ color: 'var(--text-primary)' }}>YoTP</span>
+                <span style={{ color: brandColor, transition: 'color 0.5s ease', marginLeft: '4px' }}>Neo</span>
+            </div>
+
+            {/* Dynamic Nav Items */}
+            <div
+                className="nav-items"
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    flex: 1,
+                    justifyContent: 'center', /* Restored center alignment */
+                    overflowX: 'auto',
+                    padding: '0 0.5rem',
+                    scrollbarWidth: 'none', /* Firefox */
+                    msOverflowStyle: 'none', /* IE */
+                    maxWidth: '100%'
+                }}
+            >
+                <style>{`
+                    .nav-items::-webkit-scrollbar { display: none; }
+                `}</style>
+                {navItems.map(item => (
+                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <button
+                            onClick={() => setActiveTab(item.id)}
+                            title={item.label}
+                            style={{
+                                background: activeTab === item.id ? item.color : 'transparent',
+                                color: activeTab === item.id ? '#fff' : 'var(--text-secondary)',
+                                border: `1px solid ${activeTab === item.id ? item.color : 'transparent'}`,
+                                borderRadius: '12px',
+                                padding: '0.5rem 1rem',
+                                minWidth: '40px',
+                                height: '40px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '1.1rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                boxShadow: activeTab === item.id ? `0 0 15px ${item.color}40` : 'none'
+                            }}
+                        >
+                            <span style={{ marginRight: activeTab === item.id ? '8px' : '0', display: activeTab === item.id ? 'inline' : 'none', fontWeight: 600, fontSize: '0.9rem' }}>{item.label}</span>
+                            {item.icon}
+                        </button>
+
+                        {activeTab === item.id && activeTab !== 'google' && (
+                            <form
+                                onSubmit={handleAction}
+                                style={{
+                                    display: 'flex',
+                                    gap: '8px',
+                                    animation: 'slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+                                }}
+                            >
+                                <div style={{ position: 'relative', width: '300px' }}>
+                                    <input
+                                        type="text"
+                                        placeholder={item.placeholder}
+                                        value={inputVal}
+                                        onChange={(e) => setInputVal(e.target.value)}
+                                        autoFocus
+                                        style={{
+                                            width: '100%',
+                                            background: 'var(--input-bg)',
+                                            border: `2px solid ${item.color}`,
+                                            borderRadius: '12px',
+                                            padding: '0 1.2rem',
+                                            height: '40px',
+                                            color: 'var(--text-primary)',
+                                            transition: 'border-color 0.3s',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                </div>
+                                <button type="submit" style={{
+                                    height: '40px',
+                                    borderRadius: '12px',
+                                    padding: '0 1rem',
+                                    background: item.color,
+                                    border: 'none',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                    transition: 'background-color 0.3s',
+                                    boxShadow: `0 0 10px ${item.color}40`
+                                }}>
+                                    Go
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {/* Right Toggles */}
+            <div style={{ minWidth: '150px', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                <button
+                    onClick={toggleTheater}
+                    title="Theater Mode"
+                    style={{
+                        background: theaterMode ? 'var(--text-primary)' : 'transparent',
+                        color: theaterMode ? 'var(--bg-dark)' : 'var(--text-secondary)',
+                        border: '1px solid var(--glass-border)',
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}
+                >
+                    {theaterMode ? '⤢' : '⤡'}
+                </button>
+
+                <button
+                    onClick={toggleTheme}
+                    title="Toggle Theme"
+                    style={{
+                        background: 'transparent',
+                        color: 'var(--text-secondary)',
+                        border: '1px solid var(--glass-border)',
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}
+                >
+                    {theme === 'dark' ? '☀️' : '🌙'}
+                </button>
+            </div>
+
+            <style>{`
+         @keyframes slideIn {
+           from { opacity: 0; transform: translateX(-10px); width: 0; overflow: hidden; }
+           to { opacity: 1; transform: translateX(0); width: auto; overflow: visible; }
+         }
+       `}</style>
+        </nav>
+    );
+};
+
+export default Navbar;
