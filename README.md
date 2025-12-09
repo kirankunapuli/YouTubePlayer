@@ -7,8 +7,7 @@
 [![React](https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-Fast-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev)
 
-![YoTP Neo Preview](https://github.com/kirankunapuli/YouTubePlayer/assets/preview-placeholder.png) 
-*(Note: Replace with a real screenshot if you have one)*
+![YoTP Neo Preview](public/preview.png)
 
 ---
 
@@ -66,4 +65,3 @@ This project requires a **Node.js active server** to function (for the proxy). I
 
 ---
 
-*Verified "10/10" Polish.* ✨
