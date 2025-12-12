@@ -61,7 +61,7 @@ const Navbar = ({
     const brandColor = activeItem ? activeItem.color : 'var(--accent-color)';
 
     return (
-        <nav className="glass-panel" style={{
+        <nav className="glass-panel navbar" style={{
             position: 'fixed',
             top: 0,
             left: 0,
@@ -94,12 +94,14 @@ const Navbar = ({
                     alignItems: 'center',
                     gap: '0.5rem',
                     flex: 1,
-                    justifyContent: 'center', /* Restored center alignment */
+                    minWidth: 0,
                     overflowX: 'auto',
                     padding: '0 0.5rem',
                     scrollbarWidth: 'none', /* Firefox */
                     msOverflowStyle: 'none', /* IE */
-                    maxWidth: '100%'
+                    maxWidth: '100%',
+                    width: '100%',
+                    flexWrap: 'nowrap'
                 }}
             >
                 <style>{`
@@ -127,7 +129,7 @@ const Navbar = ({
                                 boxShadow: activeTab === item.id ? `0 0 15px ${item.color}40` : 'none'
                             }}
                         >
-                            <span style={{ marginRight: activeTab === item.id ? '8px' : '0', display: activeTab === item.id ? 'inline' : 'none', fontWeight: 600, fontSize: '0.9rem' }}>{item.label}</span>
+                            <span style={{ marginRight: activeTab === item.id ? '8px' : '0', display: activeTab === item.id ? 'inline-block' : 'none', fontWeight: 600, fontSize: '0.9rem', whiteSpace: 'nowrap' }}>{item.label}</span>
                             {item.icon}
                         </button>
 
@@ -140,7 +142,7 @@ const Navbar = ({
                                     animation: 'slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
                                 }}
                             >
-                                <div style={{ position: 'relative', width: '300px' }}>
+                                <div style={{ position: 'relative', width: '100%' }}>
                                     <input
                                         type="text"
                                         placeholder={item.placeholder}
@@ -180,7 +182,7 @@ const Navbar = ({
             </div>
 
             {/* Right Toggles */}
-            <div style={{ minWidth: '150px', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+            <div className="nav-actions" style={{ minWidth: '150px', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
                 <button
                     onClick={toggleTheater}
                     title="Theater Mode"
