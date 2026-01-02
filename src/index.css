@@ -89,10 +89,8 @@ body::before {
 .app-main {
   width: 100%;
   max-width: 1400px;
-  /* Wider on desktop */
   margin: 0 auto;
   padding-top: 6rem;
-  /* Space for Navbar */
   padding-bottom: 2rem;
   padding-left: 1rem;
   padding-right: 1rem;
@@ -108,7 +106,135 @@ body::before {
   margin-right: auto;
 }
 
-/* MOBILE OPTIMIZATIONS */
+/* Global Navbar Styling (Desktop) */
+.navbar {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  gap: 1rem;
+}
+
+.navbar-items {
+  justify-content: center !important;
+  flex: 1;
+}
+
+/* Glass Card Utility */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s, border-color 0.3s;
+}
+
+/* Cinema Overlay */
+.cinema-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: 0.90;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+  transition: opacity 0.5s ease;
+}
+
+/* Theater/Cinema Mode Wrapper */
+.theater-mode-wrapper {
+  position: relative;
+  z-index: 10;
+  border-radius: 12px;
+  box-shadow: 0 0 60px -5px var(--ambient-color);
+  transition: box-shadow 0.5s ease;
+  animation: bg-pulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes bg-pulse {
+  0% {
+    box-shadow: 0 0 60px -5px var(--ambient-color);
+  }
+
+  50% {
+    box-shadow: 0 0 80px -5px var(--ambient-color);
+  }
+
+  100% {
+    box-shadow: 0 0 60px -5px var(--ambient-color);
+  }
+}
+
+.theater-active .theater-mode-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 1800px;
+  z-index: 2005;
+  box-shadow: 0 0 100px rgba(0, 0, 0, 0.8);
+}
+
+.theater-active nav {
+  opacity: 0.2;
+  transition: opacity 0.3s;
+}
+
+.theater-active nav:hover {
+  opacity: 1;
+}
+
+/* Google Search Fixes */
+.gsc-control-cse {
+  padding: 1em !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.gsc-input,
+.gsc-input-box,
+.gsc-input-box-hover,
+.gsc-input-box-focus {
+  background: #fff !important;
+  border-color: #ccc !important;
+}
+
+input.gsc-input {
+  color: #000 !important;
+  background-image: none !important;
+}
+
+.gsc-results-wrapper-overlay {
+  top: 80px !important;
+  overflow: auto !important;
+}
+
+.gsc-modal-background-image {
+  display: none !important;
+}
+
+.gsc-overflow-hidden {
+  overflow: auto !important;
+}
+
+input {
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* MOBILE OPTIMIZATIONS (The properly closed block) */
 @media (max-width: 768px) {
   .app-main {
     padding-top: 120px;
@@ -118,193 +244,46 @@ body::before {
 
   .glass-panel {
     border-radius: 0;
-    /* Full width on mobile looks better flat? Or keep radius? Keep radius but smaller padding. */
     padding: 1rem;
   }
 
   .navbar {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.8rem 2rem;
-    gap: 1rem;
+    display: grid !important;
+    grid-template-areas:
+      "logo actions"
+      "items items";
+    grid-template-columns: 1fr auto;
+    padding: 0.6rem 1rem !important;
+    gap: 0.4rem !important;
+    height: auto !important;
   }
 
-  /* Desktop layout is default flex, but let's make it grid-ready if needed. 
-     Actually, flex row with center items is standard for desktop. */
+  .navbar-logo {
+    grid-area: logo;
+  }
+
+  .navbar-actions {
+    grid-area: actions;
+    justify-self: end;
+  }
+
   .navbar-items {
-    justify-content: center !important;
-    flex: 1;
+    grid-area: items;
+    width: 100% !important;
+    padding: 0.4rem 0 !important;
+    overflow-x: auto !important;
+    min-height: 48px;
+    border-top: 1px solid var(--glass-border);
+    margin-top: 0.2rem;
+    justify-content: flex-start !important;
   }
 
-  @media (max-width: 768px) {
-    .navbar {
-      display: grid !important;
-      grid-template-areas:
-        "logo actions"
-        "items items";
-      grid-template-columns: 1fr auto;
-      padding: 0.6rem 1rem !important;
-      gap: 0.4rem !important;
-      height: auto !important;
-    }
-
-    .navbar-logo {
-      grid-area: logo;
-    }
-
-    .navbar-actions {
-      grid-area: actions;
-      justify-self: end;
-    }
-
-    .navbar-items {
-      grid-area: items;
-      width: 100% !important;
-      padding: 0.4rem 0 !important;
-      overflow-x: auto !important;
-      min-height: 48px;
-      border-top: 1px solid var(--glass-border);
-      margin-top: 0.2rem;
-      justify-content: flex-start !important;
-    }
-
-    .navbar-items button {
-      padding: 0.4rem 0.6rem;
-      font-size: 0.9rem;
-    }
-
-    .navbar-items form>div {
-      min-width: 120px !important;
-    }
+  .navbar-items button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
   }
 
-  /* Glass Card Utility */
-  .glass-panel {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s, border-color 0.3s;
+  .navbar-items form>div {
+    min-width: 120px !important;
   }
-
-  .navbar {
-    gap: 0.75rem;
-  }
-
-  .navbar .nav-items {
-    justify-content: center;
-  }
-
-  .navbar .nav-items form>div {
-    max-width: 360px;
-  }
-
-  /* Theater/Cinema Mode */
-  .cinema-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: black;
-    opacity: 0.90;
-    z-index: 2000;
-    backdrop-filter: blur(5px);
-    transition: opacity 0.5s ease;
-  }
-
-  /* Promote player above overlay */
-  .theater-mode-wrapper {
-    position: relative;
-    /* transition removed to prevent flying effect */
-    z-index: 10;
-    border-radius: 12px;
-    /* Localized Ambient Glow (Medium) */
-    box-shadow: 0 0 60px -5px var(--ambient-color);
-    transition: box-shadow 0.5s ease;
-    animation: bg-pulse 8s ease-in-out infinite alternate;
-  }
-
-  @keyframes bg-pulse {
-    0% {
-      box-shadow: 0 0 60px -5px var(--ambient-color);
-    }
-
-    50% {
-      box-shadow: 0 0 80px -5px var(--ambient-color);
-    }
-
-    100% {
-      box-shadow: 0 0 60px -5px var(--ambient-color);
-    }
-  }
-
-  .theater-active .theater-mode-wrapper {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90vw;
-    max-width: 1800px;
-    /* Really big */
-    z-index: 2005;
-    box-shadow: 0 0 100px rgba(0, 0, 0, 0.8);
-  }
-
-  /* Hide or dim other elements in theater mode */
-  .theater-active nav {
-    opacity: 0.2;
-    transition: opacity 0.3s;
-  }
-
-  .theater-active nav:hover {
-    opacity: 1;
-  }
-
-  /* Google CSE Fixes (Unchanged) */
-  .gsc-control-cse {
-    padding: 1em !important;
-    background-color: transparent !important;
-    border: none !important;
-  }
-
-  .gsc-input,
-  .gsc-input-box,
-  .gsc-input-box-hover,
-  .gsc-input-box-focus {
-    background: #fff !important;
-    border-color: #ccc !important;
-  }
-
-  input.gsc-input {
-    color: #000 !important;
-    background-image: none !important;
-  }
-
-  .gsc-results-wrapper-overlay {
-    top: 80px !important;
-    overflow: auto !important;
-  }
-
-  .gsc-modal-background-image {
-    display: none !important;
-  }
-
-  .gsc-overflow-hidden {
-    overflow: auto !important;
-  }
-
-  input {
-    font-family: inherit;
-    font-size: 1rem;
-    outline: none;
-  }
-
-  button {
-    font-family: inherit;
-    cursor: pointer;
-  }
+}
