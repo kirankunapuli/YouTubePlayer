@@ -30,11 +30,11 @@ const Player = ({ videoId, type = 'video', title }) => {
     const domain = `https://www.${getDomain()}`;
 
     if (type === 'video') {
-        embedUrl = `${domain}/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`;
+        embedUrl = `${domain}/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&vq=hd1080`;
     } else if (type === 'playlist') {
-        embedUrl = `${domain}/embed?listType=playlist&list=${videoId}&autoplay=1&modestbranding=1`;
+        embedUrl = `${domain}/embed?listType=playlist&list=${videoId}&autoplay=1&modestbranding=1&vq=hd1080`;
     } else if (type === 'channel') {
-        embedUrl = `${domain}/embed?listType=user_uploads&list=${videoId}&autoplay=1&modestbranding=1`;
+        embedUrl = `${domain}/embed?listType=user_uploads&list=${videoId}&autoplay=1&modestbranding=1&vq=hd1080`;
     }
 
     return (
