@@ -29,6 +29,7 @@
     *   **One-Click Reset**: Instantly nuke all local data.
 *   **📱 Fully Responsive**: Optimized for everything from ultrawide desktops to mobile phones.
 *   **🎭 Cinema Mode**: Press `T` to focus. The world fades away.
+*   **🎬 Native HD Preference**: Force-starts videos in Full HD (1080p) automatically.
 
 ---
 
