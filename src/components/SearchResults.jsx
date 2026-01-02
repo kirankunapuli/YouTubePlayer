@@ -13,7 +13,7 @@ const SearchResults = ({ results, onPlay }) => {
     };
 
     return (
-        <div style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem', width: '100%' }}>
+        <div style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem', width: '100%' }}>
             {results.map((video, index) => {
                 const videoId = getSafeId(video.url) || video.videoId; // Use helper
 

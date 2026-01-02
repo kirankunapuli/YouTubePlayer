@@ -80,13 +80,55 @@ const Navbar = ({
             backdropFilter: 'blur(20px)',
             borderBottom: '1px solid var(--glass-border)'
         }}>
-            {/* Branding */}
-            <div className="logo" style={{ fontSize: '1.5rem', fontWeight: 800, whiteSpace: 'nowrap', minWidth: '150px' }}>
-                <span style={{ color: 'var(--text-primary)' }}>YoTP</span>
-                <span style={{ color: brandColor, transition: 'color 0.5s ease', marginLeft: '4px' }}>Neo</span>
+            {/* Top Row: Logo & Actions (Toggles) */}
+            <div className="nav-top" style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                width: '100%',
+                marginBottom: '0.2rem'
+            }}>
+                <div className="logo" style={{ fontSize: '1.4rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                    <span style={{ color: 'var(--text-primary)' }}>YoTP</span>
+                    <span style={{ color: brandColor, transition: 'color 0.5s ease', marginLeft: '4px' }}>Neo</span>
+                </div>
+
+                <div className="nav-actions" style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                        onClick={toggleTheater}
+                        title="Theater Mode"
+                        style={{
+                            background: theaterMode ? 'var(--text-primary)' : 'transparent',
+                            color: theaterMode ? 'var(--bg-dark)' : 'var(--text-secondary)',
+                            border: '1px solid var(--glass-border)',
+                            borderRadius: '50%',
+                            width: '36px',
+                            height: '36px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}
+                    >
+                        {theaterMode ? '⤢' : '⤡'}
+                    </button>
+
+                    <button
+                        onClick={toggleTheme}
+                        title="Toggle Theme"
+                        style={{
+                            background: 'transparent',
+                            color: 'var(--text-secondary)',
+                            border: '1px solid var(--glass-border)',
+                            borderRadius: '50%',
+                            width: '36px',
+                            height: '36px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}
+                    >
+                        {theme === 'dark' ? '☀️' : '🌙'}
+                    </button>
+                </div>
             </div>
 
-            {/* Dynamic Nav Items */}
+            {/* Bottom Row: Dynamic Nav Items (Scrollable) */}
             <div
                 className="nav-items"
                 style={{
@@ -96,9 +138,9 @@ const Navbar = ({
                     flex: 1,
                     minWidth: 0,
                     overflowX: 'auto',
-                    padding: '0 0.5rem',
-                    scrollbarWidth: 'none', /* Firefox */
-                    msOverflowStyle: 'none', /* IE */
+                    padding: '0.2rem 0',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
                     maxWidth: '100%',
                     width: '100%',
                     flexWrap: 'nowrap'
@@ -117,19 +159,19 @@ const Navbar = ({
                                 color: activeTab === item.id ? '#fff' : 'var(--text-secondary)',
                                 border: `1px solid ${activeTab === item.id ? item.color : 'transparent'}`,
                                 borderRadius: '12px',
-                                padding: '0.5rem 1rem',
-                                minWidth: '40px',
-                                height: '40px',
+                                padding: '0.4rem 0.8rem',
+                                minHeight: '36px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                fontSize: '1.1rem',
+                                fontSize: '1rem',
                                 cursor: 'pointer',
                                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                boxShadow: activeTab === item.id ? `0 0 15px ${item.color}40` : 'none'
+                                boxShadow: activeTab === item.id ? `0 0 15px ${item.color}40` : 'none',
+                                whiteSpace: 'nowrap'
                             }}
                         >
-                            <span style={{ marginRight: activeTab === item.id ? '8px' : '0', display: activeTab === item.id ? 'inline-block' : 'none', fontWeight: 600, fontSize: '0.9rem', whiteSpace: 'nowrap' }}>{item.label}</span>
+                            <span style={{ marginRight: activeTab === item.id ? '8px' : '0', display: activeTab === item.id ? 'inline-block' : 'none', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap' }}>{item.label}</span>
                             {item.icon}
                         </button>
 
@@ -142,7 +184,7 @@ const Navbar = ({
                                     animation: 'slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
                                 }}
                             >
-                                <div style={{ position: 'relative', width: '100%' }}>
+                                <div style={{ position: 'relative', minWidth: '150px' }}>
                                     <input
                                         type="text"
                                         placeholder={item.placeholder}
@@ -154,23 +196,24 @@ const Navbar = ({
                                             background: 'var(--input-bg)',
                                             border: `2px solid ${item.color}`,
                                             borderRadius: '12px',
-                                            padding: '0 1.2rem',
-                                            height: '40px',
+                                            padding: '0 1rem',
+                                            height: '36px',
                                             color: 'var(--text-primary)',
                                             transition: 'border-color 0.3s',
-                                            boxSizing: 'border-box'
+                                            boxSizing: 'border-box',
+                                            fontSize: '0.9rem'
                                         }}
                                     />
                                 </div>
                                 <button type="submit" style={{
-                                    height: '40px',
+                                    height: '36px',
                                     borderRadius: '12px',
-                                    padding: '0 1rem',
+                                    padding: '0 0.8rem',
                                     background: item.color,
                                     border: 'none',
                                     color: 'white',
                                     fontWeight: 600,
-                                    transition: 'background-color 0.3s',
+                                    fontSize: '0.9rem',
                                     boxShadow: `0 0 10px ${item.color}40`
                                 }}>
                                     Go
@@ -179,41 +222,6 @@ const Navbar = ({
                         )}
                     </div>
                 ))}
-            </div>
-
-            {/* Right Toggles */}
-            <div className="nav-actions" style={{ minWidth: '150px', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                <button
-                    onClick={toggleTheater}
-                    title="Theater Mode"
-                    style={{
-                        background: theaterMode ? 'var(--text-primary)' : 'transparent',
-                        color: theaterMode ? 'var(--bg-dark)' : 'var(--text-secondary)',
-                        border: '1px solid var(--glass-border)',
-                        borderRadius: '50%',
-                        width: '40px',
-                        height: '40px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}
-                >
-                    {theaterMode ? '⤢' : '⤡'}
-                </button>
-
-                <button
-                    onClick={toggleTheme}
-                    title="Toggle Theme"
-                    style={{
-                        background: 'transparent',
-                        color: 'var(--text-secondary)',
-                        border: '1px solid var(--glass-border)',
-                        borderRadius: '50%',
-                        width: '40px',
-                        height: '40px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}
-                >
-                    {theme === 'dark' ? '☀️' : '🌙'}
-                </button>
             </div>
 
             <style>{`

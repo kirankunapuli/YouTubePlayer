@@ -111,8 +111,7 @@ body::before {
 /* MOBILE OPTIMIZATIONS */
 @media (max-width: 768px) {
   .app-main {
-    padding-top: 110px;
-    /* Navbar might be taller if wrapped */
+    padding-top: 120px;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
@@ -121,6 +120,39 @@ body::before {
     border-radius: 0;
     /* Full width on mobile looks better flat? Or keep radius? Keep radius but smaller padding. */
     padding: 1rem;
+  }
+
+  .navbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 0.6rem 1rem !important;
+    gap: 0.4rem !important;
+    height: auto !important;
+  }
+
+  /* Desktop Logo hidden by grid area logic? No, let's just use flex for rows */
+  .navbar .nav-top {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
+  .navbar .nav-items {
+    justify-content: flex-start !important;
+    width: 100% !important;
+    padding: 0.4rem 0 !important;
+    overflow-x: auto !important;
+    min-height: 48px;
+    border-top: 1px solid var(--glass-border);
+  }
+
+  .navbar .nav-items button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .navbar .nav-items form > div {
+    min-width: 120px !important;
   }
 }
 
@@ -134,6 +166,18 @@ body::before {
   padding: 2rem;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s, border-color 0.3s;
+}
+
+.navbar {
+  gap: 0.75rem;
+}
+
+.navbar .nav-items {
+  justify-content: center;
+}
+
+.navbar .nav-items form>div {
+  max-width: 360px;
 }
 
 /* Theater/Cinema Mode */
