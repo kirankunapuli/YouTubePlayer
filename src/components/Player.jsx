@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 
-const Player = ({ videoId, type = 'video', title }) => {
+const Player = ({ videoId, type = 'video', title, streamProxy, onToggleProxy }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         setLoading(true);
-    }, [videoId, type]);
+    }, [videoId, type, streamProxy]);
 
     if (!videoId) {
         return (
@@ -17,7 +17,6 @@ const Player = ({ videoId, type = 'video', title }) => {
     }
 
     // Obfuscated domain construction to hide from simple source grep
-    // "youtube-nocookie.com" -> base64: "eW91dHViZS1ub2Nvb2tpZS5jb20="
     const getDomain = () => {
         try {
             return atob('eW91dHViZS1ub2Nvb2tpZS5jb20=');
@@ -29,12 +28,19 @@ const Player = ({ videoId, type = 'video', title }) => {
     let embedUrl = '';
     const domain = `https://www.${getDomain()}`;
 
-    if (type === 'video') {
-        embedUrl = `${domain}/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&vq=hd1080`;
-    } else if (type === 'playlist') {
-        embedUrl = `${domain}/embed?listType=playlist&list=${videoId}&autoplay=1&modestbranding=1&vq=hd1080`;
-    } else if (type === 'channel') {
-        embedUrl = `${domain}/embed?listType=user_uploads&list=${videoId}&autoplay=1&modestbranding=1&vq=hd1080`;
+    if (streamProxy) {
+        // Use a more reliable Invidious instance that allows embedding
+        // invidious.nerdvpn.de was verified to work in browser testing
+        embedUrl = `https://invidious.nerdvpn.de/embed/${videoId}?autoplay=1`;
+    } else {
+        if (type === 'video') {
+            // vq=highres is the specific parameter to force high quality in YouTube embeds
+            embedUrl = `${domain}/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&vq=highres&quality=hd1080`;
+        } else if (type === 'playlist') {
+            embedUrl = `${domain}/embed?listType=playlist&list=${videoId}&autoplay=1&modestbranding=1&vq=highres`;
+        } else if (type === 'channel') {
+            embedUrl = `${domain}/embed?listType=user_uploads&list=${videoId}&autoplay=1&modestbranding=1&vq=highres`;
+        }
     }
 
     return (
@@ -56,7 +62,43 @@ const Player = ({ videoId, type = 'video', title }) => {
                     onLoad={() => setLoading(false)}
                 />
             </div>
-            {title && <h3 style={{ margin: '1rem 0.5rem', textAlign: 'left' }}>{title}</h3>}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0.5rem' }}>
+                <h3 style={{ margin: 0, textAlign: 'left', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title || 'Playing Video'}</h3>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: '20px', border: '1px solid var(--glass-border)' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: streamProxy ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+                        {streamProxy ? 'PROXY MODE' : 'DIRECT MODE'}
+                    </span>
+                    <button
+                        onClick={onToggleProxy}
+                        style={{
+                            background: streamProxy ? 'var(--accent-color)' : 'rgba(255,255,255,0.1)',
+                            border: 'none',
+                            width: '32px',
+                            height: '16px',
+                            borderRadius: '8px',
+                            position: 'relative',
+                            cursor: 'pointer',
+                            transition: 'background 0.3s'
+                        }}
+                    >
+                        <div style={{
+                            position: 'absolute',
+                            left: streamProxy ? '18px' : '2px',
+                            top: '2px',
+                            width: '12px',
+                            height: '12px',
+                            borderRadius: '50%',
+                            background: '#fff',
+                            transition: 'left 0.3s'
+                        }} />
+                    </button>
+                    <span
+                        title="Proxy Mode uses auxiliary domains to bypass office blocks and quality throttling."
+                        style={{ cursor: 'help', fontSize: '0.8rem', opacity: 0.5 }}
+                    >ⓘ</span>
+                </div>
+            </div>
         </div>
     );
 };

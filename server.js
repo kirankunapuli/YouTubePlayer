@@ -1,7 +1,7 @@
 import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import ytsr from 'ytsr';
+import { searchSwarm } from './yt-swarm.js';
 import fetch from 'node-fetch'; // Standard in Node 18, but explicit import if needed inside .mjs context or sticking to native globalThis
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,27 +21,10 @@ app.get('/api/search', async (req, res) => {
     }
 
     try {
-        console.log(`[Server] Scraping YouTube for: ${query}`);
-        const filters1 = await ytsr.getFilters(query);
-        const filter1 = filters1.get('Type').get('Video');
-
-        if (!filter1.url) throw new Error('No video results found');
-
-        const results = await ytsr(filter1.url, { limit: 20 });
-
-        const items = results.items.map(item => ({
-            url: item.url,
-            type: 'video',
-            title: item.title,
-            thumbnail: item.bestThumbnail?.url,
-            uploaderName: item.author?.name,
-            duration: item.duration,
-            uploaded: item.uploadedAt
-        }));
-
+        const items = await searchSwarm(query);
         res.json({ items });
     } catch (err) {
-        console.error('[Server] Search failed:', err);
+        console.error('[Server] Swarm search failed:', err);
         res.status(500).json({ error: err.message });
     }
 });

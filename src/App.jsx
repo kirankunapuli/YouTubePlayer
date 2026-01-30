@@ -12,6 +12,7 @@ function App() {
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [searchError, setSearchError] = useState(null);
   const [activeTab, setActiveTab] = useState('search');
+  const [streamProxy, setStreamProxy] = useState(false);
 
   // New Features State
   const [theme, setTheme] = useState('dark');
@@ -141,7 +142,13 @@ function App() {
       <main className="app-main">
         {/* Main Player Area with wrapper class for promotion */}
         <div className={`theater-mode-wrapper player-container-responsive`}>
-          <Player videoId={currentVideo.id} type={currentVideo.type} />
+          <Player
+            videoId={currentVideo.id}
+            type={currentVideo.type}
+            title={currentVideo.title}
+            streamProxy={streamProxy}
+            onToggleProxy={() => setStreamProxy(prev => !prev)}
+          />
         </div>
 
         {/* Content below player - Hide in Theater Mode visually */}

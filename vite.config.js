@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { searchSwarm } from './yt-swarm.js'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -53,33 +54,11 @@ export default defineConfig({
           }
 
           try {
-            console.log(`Scraping YouTube for: ${query}`);
-            const ytsr = (await import('ytsr')).default;
-
-            const filters1 = await ytsr.getFilters(query);
-            const filter1 = filters1.get('Type').get('Video');
-
-            if (!filter1.url) throw new Error('No video results found');
-
-            const results = await ytsr(filter1.url, { limit: 20 });
-
-            const items = results.items.map(item => ({
-              url: item.url,
-              type: 'video',
-              title: item.title,
-              thumbnail: item.bestThumbnail?.url,
-              uploaderName: item.author?.name,
-              duration: item.duration,
-              uploaded: item.uploadedAt
-            }));
-
+            const items = await searchSwarm(query);
             res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ items })); // Piped usually returns {items: []}, let's return array or object?
-            // App expecting items. data.items.
-            // My previous code: res.end(JSON.stringify({ items }));
-            // Let's stick to object { items }
+            res.end(JSON.stringify({ items }));
           } catch (err) {
-            console.error('YTSR Scraping failed:', err);
+            console.error('Swarm search failed:', err);
             res.statusCode = 500;
             res.end(JSON.stringify({ error: err.message }));
           }
