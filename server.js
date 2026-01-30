@@ -10,6 +10,54 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Simple allow-list for external image hosts the proxy is allowed to access.
+// Adjust this list to match the domains your application legitimately uses.
+const ALLOWED_IMAGE_HOSTS = [
+    'i.ytimg.com',
+    'img.youtube.com'
+];
+
+/**
+ * Validate a user-provided URL for use with the image proxy to reduce SSRF risk.
+ * - Only allow http/https schemes.
+ * - Only allow hosts in ALLOWED_IMAGE_HOSTS.
+ */
+function validateImageProxyUrl(rawUrl) {
+    let url;
+    try {
+        url = new URL(rawUrl);
+    } catch (e) {
+        // Try parsing relative URLs against a dummy base; still enforce host allow-list.
+        try {
+            url = new URL(rawUrl, 'https://example.com');
+        } catch {
+            return null;
+        }
+    }
+
+    const protocol = url.protocol.toLowerCase();
+    if (protocol !== 'http:' && protocol !== 'https:') {
+        return null;
+    }
+
+    const hostname = url.hostname.toLowerCase();
+
+    // Disallow obvious local hosts explicitly.
+    if (
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === '::1'
+    ) {
+        return null;
+    }
+
+    if (!ALLOWED_IMAGE_HOSTS.includes(hostname)) {
+        return null;
+    }
+
+    return url;
+}
+
 // Serve static files from the build directory
 app.use(express.static(join(__dirname, 'dist')));
 
@@ -36,8 +84,13 @@ app.get('/api/proxy-image', async (req, res) => {
         return res.status(400).send('Missing url');
     }
 
+    const validatedUrl = validateImageProxyUrl(targetUrl);
+    if (!validatedUrl) {
+        return res.status(400).send('Invalid or disallowed url');
+    }
+
     try {
-        const imageRes = await fetch(targetUrl);
+        const imageRes = await fetch(validatedUrl.toString());
         const arrayBuffer = await imageRes.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
