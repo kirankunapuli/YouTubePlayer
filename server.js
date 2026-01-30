@@ -40,12 +40,7 @@ function validateImageProxyUrl(rawUrl) {
     try {
         url = new URL(rawUrl);
     } catch (_e) {
-        // Try parsing relative URLs against a dummy base; still enforce host allow-list.
-        try {
-            url = new URL(rawUrl, 'https://example.com');
-        } catch {
-            return null;
-        }
+        return null;
     }
 
     const protocol = url.protocol.toLowerCase();
@@ -109,7 +104,15 @@ app.get('/api/proxy-image', async (req, res) => {
     }
 
     try {
-        const imageRes = await fetch(validatedUrl.toString());
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+
+        const imageRes = await fetch(validatedUrl.toString(), {
+            redirect: 'error',
+            signal: controller.signal
+        });
+
+        clearTimeout(timeout);
         const arrayBuffer = await imageRes.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
