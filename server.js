@@ -4,6 +4,7 @@ import { dirname, join } from 'path';
 import { searchSwarm } from './yt-swarm.js';
 import fetch from 'node-fetch'; // Standard in Node 18, but explicit import if needed inside .mjs context or sticking to native globalThis
 import rateLimit from 'express-rate-limit';
+import net from 'net';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -52,6 +53,11 @@ function validateImageProxyUrl(rawUrl) {
     let hostname = url.hostname.toLowerCase();
     if (hostname.endsWith('.')) {
         hostname = hostname.slice(0, -1);
+    }
+
+    // Reject any IP-literal host (IPv4 or IPv6) to avoid direct IP targeting, including internal IPs.
+    if (net.isIP(hostname) !== 0) {
+        return null;
     }
 
     // Disallow obvious local hosts explicitly.
