@@ -48,7 +48,11 @@ function validateImageProxyUrl(rawUrl) {
         return null;
     }
 
-    const hostname = url.hostname.toLowerCase();
+    // Normalize hostname: lowercase and strip any trailing dot.
+    let hostname = url.hostname.toLowerCase();
+    if (hostname.endsWith('.')) {
+        hostname = hostname.slice(0, -1);
+    }
 
     // Disallow obvious local hosts explicitly.
     if (
@@ -64,12 +68,16 @@ function validateImageProxyUrl(rawUrl) {
         return null;
     }
 
-    // Only allow specific YouTube image domains
+    // Only allow specific YouTube image domains (exact match after normalization)
     if (!ALLOWED_IMAGE_HOSTS.includes(hostname)) {
         return null;
     }
 
-    return url;
+    // Return a canonical URL built from the validated host and original path/query.
+    const safeUrl = new URL(url.toString());
+    safeUrl.hostname = hostname;
+
+    return safeUrl;
 }
 
 // Serve static files from the build directory
