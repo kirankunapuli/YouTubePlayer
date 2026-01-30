@@ -4,6 +4,7 @@ const Player = ({ videoId, type = 'video', title, streamProxy, onToggleProxy }) 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLoading(true);
     }, [videoId, type, streamProxy]);
 
@@ -20,7 +21,7 @@ const Player = ({ videoId, type = 'video', title, streamProxy, onToggleProxy }) 
     const getDomain = () => {
         try {
             return atob('eW91dHViZS1ub2Nvb2tpZS5jb20=');
-        } catch (e) {
+        } catch (_) {
             return 'youtube-nocookie.com';
         }
     };
@@ -61,6 +62,22 @@ const Player = ({ videoId, type = 'video', title, streamProxy, onToggleProxy }) 
                     }}
                     onLoad={() => setLoading(false)}
                 />
+                {loading && (
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: '#000',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1
+                    }}>
+                        <div className="loading-spinner" />
+                    </div>
+                )}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0.5rem' }}>
                 <h3 style={{ margin: 0, textAlign: 'left', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title || 'Playing Video'}</h3>

@@ -116,7 +116,7 @@ function App() {
       } else {
         setSearchError('No results found. The swarm is active but found nothing.');
       }
-    } catch (err) {
+    } catch (_) {
       setSearchError('Search failed. Please check your network connection.');
     } finally {
       setLoadingSearch(false);

@@ -1,0 +1,49 @@
+
+> yotp@0.0.0 lint
+> eslint .
+
+
+/Users/kirankunapuli/Projects/YouTubePlayer/server.js
+  29:14  error  'e' is defined but never used  no-unused-vars
+
+/Users/kirankunapuli/Projects/YouTubePlayer/src/App.jsx
+  119:14  error  'err' is defined but never used  no-unused-vars
+
+/Users/kirankunapuli/Projects/YouTubePlayer/src/components/Navbar.jsx
+  43:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  41 |
+  42 |     useEffect(() => {
+> 43 |         setInputVal('');
+     |         ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  44 |     }, [activeTab]);
+  45 |
+  46 |     const navItems = [  react-hooks/set-state-in-effect
+
+/Users/kirankunapuli/Projects/YouTubePlayer/src/components/Player.jsx
+   4:12  error  'loading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              no-unused-vars
+   7:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   5 |
+   6 |     useEffect(() => {
+>  7 |         setLoading(true);
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+   8 |     }, [videoId, type, streamProxy]);
+   9 |
+  10 |     if (!videoId) {  react-hooks/set-state-in-effect
+  23:18  error  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        no-unused-vars
+
+✖ 6 problems (6 errors, 0 warnings)
+

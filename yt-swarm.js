@@ -115,36 +115,27 @@ export async function searchSwarm(query) {
 
         // Providers 2-N: Piped Instances
         ...PIPED_INSTANCES.map(async (baseUrl) => {
-            try {
-                const res = await fetch(`${baseUrl}/search?q=${encodeURIComponent(query)}&filter=videos`, {
-                    signal: AbortSignal.timeout(8000)
-                });
-                if (!res.ok) throw new Error(`Status ${res.status}`);
-                const data = await res.json();
-                if (!data.items || data.items.length === 0) throw new Error('No items');
-                console.log(`[Swarm] ✅ Piped (${baseUrl}) responded first`);
-                return data.items.map(item => standardize(item, 'piped'));
-            } catch (e) {
-                // console.error(`[Swarm] ❌ Piped (${baseUrl}) failed:`, e.message);
-                throw e;
-            }
+            const res = await fetch(`${baseUrl}/search?q=${encodeURIComponent(query)}&filter=videos`, {
+                signal: AbortSignal.timeout(8000)
+            });
+            if (!res.ok) throw new Error(`Status ${res.status}`);
+            const data = await res.json();
+            if (!data.items || data.items.length === 0) throw new Error('No items');
+            console.log(`[Swarm] ✅ Piped (${baseUrl}) responded first`);
+            return data.items.map(item => standardize(item, 'piped'));
         }),
 
         // Providers N-M: Invidious Instances
         ...INVIDIOUS_INSTANCES.map(async (baseUrl) => {
-            try {
-                // Invidious search API: /api/v1/search?q=...&type=video
-                const res = await fetch(`${baseUrl}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
-                    signal: AbortSignal.timeout(10000)
-                });
-                if (!res.ok) throw new Error(`Status ${res.status}`);
-                const data = await res.json();
-                if (!Array.isArray(data) || data.length === 0) throw new Error('No items');
-                console.log(`[Swarm] ✅ Invidious (${baseUrl}) responded first`);
-                return data.slice(0, 20).map(item => standardize(item, 'invidious'));
-            } catch (e) {
-                throw e;
-            }
+            // Invidious search API: /api/v1/search?q=...&type=video
+            const res = await fetch(`${baseUrl}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
+                signal: AbortSignal.timeout(10000)
+            });
+            if (!res.ok) throw new Error(`Status ${res.status}`);
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) throw new Error('No items');
+            console.log(`[Swarm] ✅ Invidious (${baseUrl}) responded first`);
+            return data.slice(0, 20).map(item => standardize(item, 'invidious'));
         })
     ];
 
@@ -152,7 +143,7 @@ export async function searchSwarm(query) {
         // Race all providers. Promise.any returns the first that resolves successfully.
         return await Promise.any(providers);
     } catch (err) {
-        console.error('[Swarm] 💀 All providers failed');
+        console.error('[Swarm] 💀 All providers failed', err.message);
         throw new Error('Search failed. All swarm members are down or blocked.');
     }
 }

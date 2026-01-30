@@ -26,7 +26,7 @@ function validateImageProxyUrl(rawUrl) {
     let url;
     try {
         url = new URL(rawUrl);
-    } catch (e) {
+    } catch (_e) {
         // Try parsing relative URLs against a dummy base; still enforce host allow-list.
         try {
             url = new URL(rawUrl, 'https://example.com');
@@ -98,8 +98,8 @@ app.get('/api/proxy-image', async (req, res) => {
         // Allow CORS for the frontend
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.send(buffer);
-    } catch (e) {
-        console.error('[Server] Proxy failed:', e);
+    } catch (_) {
+        console.error('[Server] Proxy failed:', _);
         res.status(500).send('Error fetching image');
     }
 });
