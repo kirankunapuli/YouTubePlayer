@@ -29,18 +29,23 @@ const Player = ({ videoId, type = 'video', title, streamProxy, onToggleProxy }) 
     let embedUrl = '';
     const domain = `https://www.${getDomain()}`;
 
+    // Sanitization to prevent XSS/HTML Injection
+    const sanitize = (str) => str ? str.replace(/[^a-zA-Z0-9_-]/g, '') : '';
+    const safeVideoId = sanitize(videoId);
+    const safeType = sanitize(type);
+
     if (streamProxy) {
         // Use a more reliable Invidious instance that allows embedding
         // invidious.nerdvpn.de was verified to work in browser testing
-        embedUrl = `https://invidious.nerdvpn.de/embed/${videoId}?autoplay=1`;
+        embedUrl = `https://invidious.nerdvpn.de/embed/${safeVideoId}?autoplay=1`;
     } else {
-        if (type === 'video') {
+        if (safeType === 'video') {
             // vq=highres is the specific parameter to force high quality in YouTube embeds
-            embedUrl = `${domain}/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&vq=highres&quality=hd1080`;
-        } else if (type === 'playlist') {
-            embedUrl = `${domain}/embed?listType=playlist&list=${videoId}&autoplay=1&modestbranding=1&vq=highres`;
-        } else if (type === 'channel') {
-            embedUrl = `${domain}/embed?listType=user_uploads&list=${videoId}&autoplay=1&modestbranding=1&vq=highres`;
+            embedUrl = `${domain}/embed/${safeVideoId}?autoplay=1&modestbranding=1&rel=0&vq=highres&quality=hd1080`;
+        } else if (safeType === 'playlist') {
+            embedUrl = `${domain}/embed?listType=playlist&list=${safeVideoId}&autoplay=1&modestbranding=1&vq=highres`;
+        } else if (safeType === 'channel') {
+            embedUrl = `${domain}/embed?listType=user_uploads&list=${safeVideoId}&autoplay=1&modestbranding=1&vq=highres`;
         }
     }
 

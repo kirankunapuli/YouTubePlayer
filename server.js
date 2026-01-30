@@ -3,12 +3,25 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { searchSwarm } from './yt-swarm.js';
 import fetch from 'node-fetch'; // Standard in Node 18, but explicit import if needed inside .mjs context or sticking to native globalThis
+import rateLimit from 'express-rate-limit';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Rate limiting to prevent abuse
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again after 15 minutes',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Apply rate limiter to all routes
+app.use(limiter);
 
 // Simple allow-list for external image hosts the proxy is allowed to access.
 // Adjust this list to match the domains your application legitimately uses.
@@ -46,11 +59,17 @@ function validateImageProxyUrl(rawUrl) {
     if (
         hostname === 'localhost' ||
         hostname === '127.0.0.1' ||
-        hostname === '::1'
+        hostname === '::1' ||
+        hostname.startsWith('0.') ||
+        hostname.startsWith('10.') ||
+        hostname.startsWith('172.') ||
+        hostname.startsWith('192.168.') ||
+        hostname.endsWith('.local')
     ) {
         return null;
     }
 
+    // Only allow specific YouTube image domains
     if (!ALLOWED_IMAGE_HOSTS.includes(hostname)) {
         return null;
     }
