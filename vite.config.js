@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { searchSwarm } from './yt-swarm.js'
+import youtubedl from 'youtube-dl-exec'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -36,6 +37,41 @@ export default defineConfig({
               console.error('Proxy Image Error:', e);
               res.statusCode = 500;
               res.end('Error fetching image');
+            }
+            return;
+          }
+
+          if (req.url.startsWith('/api/stream')) {
+            const urlParams = new URLSearchParams(req.url.split('?')[1]);
+            const videoId = urlParams.get('id');
+            if (!videoId) {
+              res.statusCode = 400;
+              res.end('Missing video ID');
+              return;
+            }
+
+            try {
+              const raw = await youtubedl(`https://www.youtube.com/watch?v=${videoId}`, {
+                dumpJson: true,
+                noWarnings: true,
+                noCallHome: true,
+                preferFreeFormats: true,
+                youtubeSkipDashManifest: true,
+                format: 'best'
+              });
+
+              if (raw && raw.url) {
+                res.statusCode = 302;
+                res.setHeader('Location', raw.url);
+                res.end();
+              } else {
+                res.statusCode = 404;
+                res.end('No playable format found');
+              }
+            } catch (err) {
+              console.error('Video stream resolve failed:', err.message);
+              res.statusCode = 500;
+              res.end('Failed to resolve video stream');
             }
             return;
           }

@@ -5,6 +5,7 @@ import { searchSwarm } from './yt-swarm.js';
 import fetch from 'node-fetch'; // Standard in Node 18, but explicit import if needed inside .mjs context or sticking to native globalThis
 import rateLimit from 'express-rate-limit';
 import net from 'net';
+import youtubedl from 'youtube-dl-exec';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -137,6 +138,35 @@ app.get('/api/proxy-image', async (req, res) => {
     } catch (_) {
         console.error('[Server] Proxy failed:', _);
         res.status(500).send('Error fetching image');
+    }
+});
+
+// API: Stream Proxy
+app.get('/api/stream', async (req, res) => {
+    const videoId = req.query.id;
+    if (!videoId) {
+        return res.status(400).send('Missing video ID');
+    }
+
+    try {
+        const raw = await youtubedl(`https://www.youtube.com/watch?v=${videoId}`, {
+            dumpJson: true,
+            noWarnings: true,
+            noCallHome: true,
+            preferFreeFormats: true,
+            youtubeSkipDashManifest: true,
+            format: 'best'
+        });
+
+        if (raw && raw.url) {
+            // Redirect the native video player directly to the googlevideo stream URL
+            res.redirect(raw.url);
+        } else {
+            res.status(404).send('No playable format found');
+        }
+    } catch (err) {
+        console.error('[Server] Video stream resolve failed:', err.message);
+        res.status(500).send('Failed to resolve video stream');
     }
 });
 
