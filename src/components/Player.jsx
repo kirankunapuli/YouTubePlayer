@@ -17,17 +17,23 @@ const Player = ({ videoId, type = 'video', title, streamProxy, onToggleProxy }) 
         );
     }
 
-    // Obfuscated domain construction to hide from simple source grep
+    // Use a pool of privacy-respecting YouTube frontends to completely bypass corporate firewalls
+    // that block youtube.com and youtube-nocookie.com
     const getDomain = () => {
-        try {
-            return atob('eW91dHViZS1ub2Nvb2tpZS5jb20=');
-        } catch (_) {
-            return 'youtube-nocookie.com';
-        }
+        const instances = [
+            'yewtu.be',
+            'invidious.nerdvpn.de',
+            'invidious.tiekoetter.com',
+            'inv.tux.rs',
+            'iv.ggtyler.dev'
+        ];
+        // Hash the video ID to consistently use the same instance for the same video
+        const index = videoId ? videoId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % instances.length : 0;
+        return instances[index];
     };
 
     let embedUrl = '';
-    const domain = `https://www.${getDomain()}`;
+    const domain = `https://${getDomain()}`;
 
     // Sanitization to prevent XSS/HTML Injection
     const sanitize = (str) => str ? str.replace(/[^a-zA-Z0-9_-]/g, '') : '';
