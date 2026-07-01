@@ -1,6 +1,5 @@
 import YouTubeSr from 'youtube-sr';
 import fetch from 'node-fetch';
-import yts from 'yt-search';
 const YouTube = YouTubeSr.default || YouTubeSr;
 
 const PIPED_INSTANCES = [
@@ -63,19 +62,6 @@ const standardize = (item, source) => {
         };
     }
 
-    // yt-search format
-    if (source === 'yt-search') {
-        return {
-            url: item.url,
-            type: 'video',
-            title: item.title,
-            thumbnail: item.thumbnail,
-            uploaderName: item.author.name,
-            duration: item.timestamp,
-            uploaded: item.ago
-        };
-    }
-
     return item;
 };
 
@@ -86,21 +72,7 @@ export async function searchSwarm(query) {
     console.log(`[Swarm] Searching for: "${query}"`);
 
     const providers = [
-        // Provider 1: yt-search (Very robust local scraper)
-        (async () => {
-            try {
-                const r = await yts(query);
-                const results = r.videos || [];
-                if (results.length === 0) throw new Error('yt-search no results');
-                console.log('[Swarm] ✅ yt-search responded first');
-                return results.slice(0, 20).map(item => standardize(item, 'yt-search'));
-            } catch (e) {
-                console.error('[Swarm] ❌ yt-search failed:', e.message);
-                throw e;
-            }
-        })(),
-
-        // Provider 2: youtube-sr (Scraper)
+        // Provider 1: youtube-sr (Scraper)
         (async () => {
             try {
                 const results = await YouTube.search(query, { limit: 20, type: 'video' });
