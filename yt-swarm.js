@@ -1,8 +1,45 @@
 import YouTubeSr from 'youtube-sr';
 import fetch from 'node-fetch';
 import youtubedl from 'youtube-dl-exec';
-import { standardize } from './src/utils/standardize.js';
 const YouTube = YouTubeSr.default || YouTubeSr;
+
+/** Standardize search results from various providers into a single format. */
+function standardize(item, source) {
+    if (source === 'youtube-sr') {
+        return {
+            url: item.url,
+            type: 'video',
+            title: item.title,
+            thumbnail: item.thumbnail?.url,
+            uploaderName: item.channel?.name,
+            duration: item.duration_formatted,
+            uploaded: item.uploadedAt,
+        };
+    }
+    if (source === 'piped') {
+        return {
+            url: 'https://www.youtube.com/watch?v=' + (item.url.split('v=')[1] || item.url),
+            type: 'video',
+            title: item.title,
+            thumbnail: item.thumbnail,
+            uploaderName: item.uploaderName,
+            duration: item.duration,
+            uploaded: item.uploadedDate,
+        };
+    }
+    if (source === 'invidious') {
+        return {
+            url: 'https://www.youtube.com/watch?v=' + item.videoId,
+            type: 'video',
+            title: item.title,
+            thumbnail: item.videoThumbnails?.[0]?.url || `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`,
+            uploaderName: item.author,
+            duration: item.duration,
+            uploaded: item.publishedText,
+        };
+    }
+    return item;
+}
 
 const PIPED_INSTANCES = [
     'https://pipedapi.kavin.rocks',
