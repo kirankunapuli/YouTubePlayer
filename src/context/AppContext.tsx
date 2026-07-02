@@ -1,6 +1,18 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { searchVideos, SearchResultItem } from '../services/api';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+
+interface SearchResultItem {
+  url: string;
+  type?: string;
+  title?: string;
+  thumbnail?: string;
+  uploaderName?: string;
+  author?: string;
+  duration?: number | string;
+  uploaded?: string;
+  videoId?: string;
+  videoThumbnails?: { url?: string }[];
+}
 
 const MAX_HISTORY = 50;
 
@@ -100,7 +112,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSearchError(null);
     setSearchResults([]);
     try {
-      const results = await searchVideos(query);
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&filter=videos`);
+      if (!response.ok) throw new Error('Search failed');
+      const data = await response.json();
+      const results = data.items || [];
       if (results && results.length > 0) {
         setSearchResults(results);
       } else {

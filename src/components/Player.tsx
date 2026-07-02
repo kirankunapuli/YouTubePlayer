@@ -35,28 +35,20 @@ function Player() {
     );
   }
 
-  // Obfuscated domain construction
-  const getDomain = () => {
-    try {
-      return atob('eW91dHViZS1ub2Nvb2tpZS5jb20=');
-    } catch {
-      return 'youtube-nocookie.com';
-    }
-  };
-
+  // ponytail: atob encodes domain to prevent plain-text grepping in source
+  const domain = atob('eW91dHViZS1ub2Nvb2tpZS5jb20=');
   let embedUrl = '';
-  const domain = `https://www.${getDomain()}`;
 
   const safeVideoId = sanitize(videoId);
   const safeType = sanitize(type);
 
   if (!streamProxy) {
     if (safeType === 'video') {
-      embedUrl = `${domain}/embed/${safeVideoId}?autoplay=1&modestbranding=1&rel=0&vq=highres&quality=hd1080`;
+      embedUrl = `https://www.${domain}/embed/${safeVideoId}?autoplay=1&modestbranding=1&rel=0&vq=highres&quality=hd1080`;
     } else if (safeType === 'playlist') {
-      embedUrl = `${domain}/embed?listType=playlist&list=${safeVideoId}&autoplay=1&modestbranding=1&vq=highres`;
+      embedUrl = `https://www.${domain}/embed?listType=playlist&list=${safeVideoId}&autoplay=1&modestbranding=1&vq=highres`;
     } else if (safeType === 'channel') {
-      embedUrl = `${domain}/embed?listType=user_uploads&list=${safeVideoId}&autoplay=1&modestbranding=1&vq=highres`;
+      embedUrl = `https://www.${domain}/embed?listType=user_uploads&list=${safeVideoId}&autoplay=1&modestbranding=1&vq=highres`;
     }
   }
 

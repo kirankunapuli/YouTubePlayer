@@ -2,7 +2,6 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { searchSwarm, runSwarmHealthCheck } from './yt-swarm.js';
-import fetch from 'node-fetch';
 import rateLimit from 'express-rate-limit';
 import youtubedl from 'youtube-dl-exec';
 import { validateImageProxyUrl } from './validate-image-url.js';

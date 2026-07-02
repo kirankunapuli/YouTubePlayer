@@ -12,15 +12,6 @@ export function extractPlaylistId(val?: string | null): string {
   return match ? match[1] : val;
 }
 
-export function getSafeId(url?: string | null): string {
-  if (!url) return '';
-  if (url.includes('v=')) {
-    return url.split('v=')[1]?.split('&')[0] || '';
-  }
-  if (url.length === 11) return url;
-  return '';
-}
-
 export function sanitize(str?: string | null): string {
   return str ? str.replace(/[^a-zA-Z0-9_-]/g, '') : '';
 }

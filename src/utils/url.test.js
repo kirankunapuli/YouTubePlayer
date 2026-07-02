@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractVideoId, extractPlaylistId, getSafeId, sanitize } from './url';
+import { extractVideoId, extractPlaylistId, sanitize } from './url';
 
 describe('extractVideoId', () => {
   it('extracts from standard watch URL', () => {
@@ -48,29 +48,6 @@ describe('extractPlaylistId', () => {
 
   it('returns empty for empty input', () => {
     expect(extractPlaylistId('')).toBe('');
-  });
-});
-
-describe('getSafeId', () => {
-  it('extracts ID from full YouTube URL', () => {
-    expect(getSafeId('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
-  });
-
-  it('extracts ID from URL with additional params', () => {
-    expect(getSafeId('https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=30s')).toBe('dQw4w9WgXcQ');
-  });
-
-  it('returns raw input if it looks like an 11-char ID', () => {
-    expect(getSafeId('dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
-  });
-
-  it('returns empty for non-ID non-URL', () => {
-    expect(getSafeId('not-a-url')).toBe('');
-  });
-
-  it('returns empty for empty input', () => {
-    expect(getSafeId('')).toBe('');
-    expect(getSafeId(null)).toBe('');
   });
 });
 

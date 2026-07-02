@@ -1,10 +1,9 @@
 import YouTubeSr from 'youtube-sr';
-import fetch from 'node-fetch';
 import youtubedl from 'youtube-dl-exec';
 const YouTube = YouTubeSr.default || YouTubeSr;
 
 /** Standardize search results from various providers into a single format. */
-function standardize(item, source) {
+export function standardize(item, source) {
     if (source === 'youtube-sr') {
         return {
             url: item.url,
@@ -61,22 +60,9 @@ const INVIDIOUS_INSTANCES = [
 
 const HEALTH_CHECK_TIMEOUT = 5000;
 
-/** Ping a single Piped instance to check if it responds. */
-async function checkPipedInstance(baseUrl) {
+async function checkInstance(baseUrl, healthPath) {
     try {
-        const res = await fetch(`${baseUrl}/health`, {
-            signal: AbortSignal.timeout(HEALTH_CHECK_TIMEOUT),
-        });
-        return res.ok ? baseUrl : null;
-    } catch {
-        return null;
-    }
-}
-
-/** Ping a single Invidious instance to check if it responds. */
-async function checkInvidiousInstance(baseUrl) {
-    try {
-        const res = await fetch(`${baseUrl}/api/v1/stats`, {
+        const res = await fetch(`${baseUrl}${healthPath}`, {
             signal: AbortSignal.timeout(HEALTH_CHECK_TIMEOUT),
         });
         return res.ok ? baseUrl : null;
@@ -96,13 +82,13 @@ export async function runSwarmHealthCheck() {
 
     const [pipedResults, invidiousResults] = await Promise.all([
         Promise.all(PIPED_INSTANCES.map(async (url) => {
-            const ok = await checkPipedInstance(url);
+            const ok = await checkInstance(url, '/health');
             if (!ok) console.warn(`[Swarm]   ❌ Piped down: ${url}`);
             else console.log(`[Swarm]   ✅ Piped ok: ${url}`);
             return ok;
         })),
         Promise.all(INVIDIOUS_INSTANCES.map(async (url) => {
-            const ok = await checkInvidiousInstance(url);
+            const ok = await checkInstance(url, '/api/v1/stats');
             if (!ok) console.warn(`[Swarm]   ❌ Invidious down: ${url}`);
             else console.log(`[Swarm]   ✅ Invidious ok: ${url}`);
             return ok;

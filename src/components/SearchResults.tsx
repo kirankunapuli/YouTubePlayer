@@ -1,5 +1,5 @@
 import { useApp } from '../context/AppContext';
-import { getSafeId } from '../utils/url';
+import { extractVideoId } from '../utils/url';
 
 function SearchResults() {
   const { searchResults, handlePlay, addToQueue } = useApp();
@@ -18,7 +18,7 @@ function SearchResults() {
       }}
     >
       {searchResults.map((video) => {
-        const videoId = getSafeId(video.url) || video.videoId;
+        const videoId = extractVideoId(video.url) || video.videoId;
         if (!videoId) return null;
 
         const thumbnail =

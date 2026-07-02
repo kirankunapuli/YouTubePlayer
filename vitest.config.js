@@ -7,10 +7,10 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: [
-        'src/utils/*.js',
+        'src/utils/*.ts',
         'validate-image-url.js',
-        'src/context/*.jsx',
-        'src/components/ErrorBoundary.jsx',
+        'src/context/*.tsx',
+        'src/components/ErrorBoundary.tsx',
       ],
     },
   },

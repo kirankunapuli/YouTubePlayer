@@ -32,17 +32,8 @@ export function validateImageProxyUrl(rawUrl) {
     return null;
   }
 
-  // Block private / internal network ranges
-  if (
-    hostname === 'localhost' ||
-    hostname === '127.0.0.1' ||
-    hostname === '::1' ||
-    hostname.startsWith('0.') ||
-    hostname.startsWith('10.') ||
-    hostname.startsWith('172.') ||
-    hostname.startsWith('192.168.') ||
-    hostname.endsWith('.local')
-  ) {
+  // Block local hostnames (IP-literals already caught by net.isIP above)
+  if (hostname === 'localhost' || hostname.endsWith('.local')) {
     return null;
   }
 

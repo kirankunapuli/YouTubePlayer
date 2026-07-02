@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { standardize } from './standardize';
+import { standardize } from '../../yt-swarm.js';
 
 describe('standardize', () => {
   it('standardizes youtube-sr format', () => {
