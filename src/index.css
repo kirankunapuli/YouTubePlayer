@@ -12,6 +12,7 @@
   --accent-glow: 0 0 20px rgba(100, 108, 255, 0.3);
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
+  --input-bg: rgba(255, 255, 255, 0.05);
 
   /* Modern Typography */
   font-family: 'Outfit', 'Inter', system-ui, sans-serif;
