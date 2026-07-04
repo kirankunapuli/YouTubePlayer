@@ -42,9 +42,11 @@ export function validateImageProxyUrl(rawUrl) {
     return null;
   }
 
-  // Return canonical URL from validated host
-  const safeUrl = new URL(url.toString());
-  safeUrl.hostname = hostname;
+  // Return canonical URL built from trusted components (avoid reusing raw absolute URL)
+  const safeUrl = new URL(`${protocol}//${hostname}`);
+  safeUrl.pathname = url.pathname;
+  safeUrl.search = url.search;
+  safeUrl.hash = url.hash;
 
   return safeUrl;
 }
