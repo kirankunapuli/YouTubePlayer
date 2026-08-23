@@ -9,6 +9,7 @@ import ShortcutsModal from './components/ShortcutsModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AppProvider, useApp } from './context/AppContext';
 import { extractColor } from './utils/colors';
+import { updateMediaSession, setMediaPlaybackState } from './utils/mediaSession';
 
 function useTheaterFocusTrap(theaterMode: boolean) {
   const prevFocus = useRef<HTMLElement | null>(null);
@@ -61,6 +62,7 @@ function AppContent() {
   const {
     currentVideo,
     activeTab,
+    setActiveTab,
     streamProxy,
     toggleStreamProxy,
     loadingSearch,
@@ -72,11 +74,22 @@ function AppContent() {
     setShowResetConfirm,
     queue,
     handlePlay,
+    playNextInQueue,
   } = useApp();
 
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   useTheaterFocusTrap(theaterMode);
+
+  // Media Session — OS media keys / lockscreen integration
+  useEffect(() => {
+    if (currentVideo.id && currentVideo.type === 'video') {
+      updateMediaSession(currentVideo, playNextInQueue);
+      setMediaPlaybackState('playing');
+    } else {
+      updateMediaSession(null, playNextInQueue);
+    }
+  }, [currentVideo, playNextInQueue]);
 
   // Auto-hide reset confirm after 3 seconds
   useEffect(() => {
@@ -171,6 +184,52 @@ function AppContent() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [theaterMode, showShortcuts, queue, handlePlay, toggleStreamProxy, setTheaterMode]);
 
+  const renderTabContent = () => {
+    if (activeTab === 'google') return <GoogleSearch />;
+    if (activeTab === 'queue') return <QueuePanel />;
+    if (activeTab === 'history') return <HistoryPanel />;
+
+    return (
+      <>
+        {loadingSearch && (
+          <div style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem', width: '100%' }}>
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="skeleton-card" style={{ padding: 0 }}>
+                <div className="skeleton-thumb" />
+                <div style={{ padding: '1rem' }}>
+                  <div className="skeleton-line" style={{ marginBottom: '0.5rem' }} />
+                  <div className="skeleton-line short" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {searchError && (
+          <div className="glass-panel" style={{ marginTop: '2rem', borderColor: /no results/i.test(searchError) ? 'var(--accent-color)' : '#ff4444' }} role="alert">
+            <p style={{ color: /no results/i.test(searchError) ? 'var(--text-secondary)' : '#ff4444' }}>
+              {searchError}
+            </p>
+            <button
+              type="button"
+              onClick={() => setActiveTab('google')}
+              className="btn-primary"
+              style={{ marginTop: '0.75rem', background: '#4285f4' }}
+            >
+              Try Google Search instead →
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'search' && (
+          <ErrorBoundary>
+            <SearchResults />
+          </ErrorBoundary>
+        )}
+      </>
+    );
+  };
+
   return (
     <div
       className={`app-container ${theaterMode ? 'theater-active' : ''}`}
@@ -189,18 +248,17 @@ function AppContent() {
 
       <Navbar />
 
-      <main className="app-main" role="main" aria-label="Main content">
-        <div
+      <main className="app-main" aria-label="Main content">
+        {/* tabIndex enables keyboard focus trapping in theater mode */}
+        <section
           className="theater-mode-wrapper player-container-responsive"
           tabIndex={theaterMode ? 0 : -1}
-          role="region"
           aria-label="Video player"
         >
           <ErrorBoundary>
             <Player key={`${currentVideo.id}-${streamProxy}`} />
           </ErrorBoundary>
-        </div>
-
+        </section>
         <div
           style={{
             opacity: theaterMode ? 0 : 1,
@@ -209,41 +267,7 @@ function AppContent() {
           }}
           aria-hidden={theaterMode}
         >
-          {activeTab === 'google' ? (
-            <GoogleSearch />
-          ) : activeTab === 'queue' ? (
-            <QueuePanel />
-          ) : activeTab === 'history' ? (
-            <HistoryPanel />
-          ) : (
-            <>
-              {loadingSearch && (
-                <div style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem', width: '100%' }}>
-                  {[1, 2, 3, 4, 5, 6].map((n) => (
-                    <div key={n} className="skeleton-card" style={{ padding: 0 }}>
-                      <div className="skeleton-thumb" />
-                      <div style={{ padding: '1rem' }}>
-                        <div className="skeleton-line" style={{ marginBottom: '0.5rem' }} />
-                        <div className="skeleton-line short" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {searchError && (
-                <div className="glass-panel" style={{ marginTop: '2rem', borderColor: '#ff4444' }} role="alert">
-                  <p style={{ color: '#ff4444' }}>{searchError}</p>
-                </div>
-              )}
-
-              {activeTab === 'search' && (
-                <ErrorBoundary>
-                  <SearchResults />
-                </ErrorBoundary>
-              )}
-            </>
-          )}
+          {renderTabContent()}
         </div>
       </main>
 
@@ -276,13 +300,15 @@ function AppContent() {
                 <span style={{ color: 'var(--accent-color)', fontWeight: '600' }}>
                   Are you sure?
                   <button
+                    type="button"
                     onClick={() => { localStorage.clear(); window.location.reload(); }}
                     style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0 8px', fontSize: 'inherit', fontWeight: 'bold' }}
                   >
                     Yes
                   </button>
-                  /
+                  {' / '}
                   <button
+                    type="button"
                     onClick={() => setShowResetConfirm(false)}
                     style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0 8px', fontSize: 'inherit' }}
                   >
@@ -291,6 +317,7 @@ function AppContent() {
                 </span>
               ) : (
                 <button
+                  type="button"
                   onClick={() => setShowResetConfirm(true)}
                   style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: 0, fontSize: 'inherit', fontWeight: '500' }}
                   aria-label="Reset app"

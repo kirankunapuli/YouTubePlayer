@@ -28,6 +28,9 @@ function Navbar() {
     e.preventDefault();
     if (activeTab === 'search') {
       handleSearch(inputVal);
+    } else if (activeTab === 'google') {
+      const id = extractVideoId(inputVal);
+      if (id) handlePlay(id, 'video');
     } else {
       const id = extractId(inputVal, activeTab);
       if (id) {
@@ -43,7 +46,7 @@ function Navbar() {
     { id: 'video', icon: '▶', label: 'Video ID', color: '#ff0000', placeholder: 'Paste Video URL/ID' },
     { id: 'playlist', icon: '📜', label: 'Playlist', color: '#a020f0', placeholder: 'Paste Playlist ID' },
     { id: 'channel', icon: '👤', label: 'Channel', color: '#ff8c00', placeholder: 'Paste Channel Name' },
-    { id: 'google', icon: 'G', label: 'Google Search', color: '#4285f4', placeholder: 'Use Google Search below' },
+    { id: 'google', icon: 'G', label: 'Google Search', color: '#4285f4', placeholder: 'Paste Video ID to play' },
   ];
 
   const activeItem = navItems.find((item) => item.id === activeTab);
@@ -118,6 +121,7 @@ function Navbar() {
             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
             <button
+              type="button"
               onClick={() => setActiveTab(item.id)}
               title={item.label}
               role="tab"
@@ -173,7 +177,7 @@ function Navbar() {
               )}
             </button>
 
-            {activeTab === item.id && !['google', 'queue', 'history'].includes(activeTab) && (
+            {activeTab === item.id && !['queue', 'history'].includes(activeTab) && (
               <form
                 key={activeTab}
                 onSubmit={handleAction}
@@ -233,6 +237,7 @@ function Navbar() {
         style={{ display: 'flex', gap: '0.5rem' }}
       >
         <button
+          type="button"
           onClick={toggleTheater}
           title="Theater Mode"
           aria-label={`${theaterMode ? 'Exit' : 'Enter'} theater mode`}
@@ -252,6 +257,7 @@ function Navbar() {
         </button>
 
         <button
+          type="button"
           onClick={toggleTheme}
           title="Toggle Theme"
           aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}

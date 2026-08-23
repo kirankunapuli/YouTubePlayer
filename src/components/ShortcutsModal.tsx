@@ -78,6 +78,7 @@ function ShortcutsModal({ onClose }: ShortcutsModalProps) {
           ))}
         </div>
         <button
+          type="button"
           onClick={onClose}
           autoFocus
           className="btn-primary"

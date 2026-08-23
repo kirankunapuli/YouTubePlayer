@@ -1,28 +1,62 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+
+const CX = '004488094107826005610:qizef8dq4is';
+
+/** Minimal typing for the Google CSE global. */
+interface GoogleCseWindow extends Window {
+  google?: {
+    search?: {
+      cse?: {
+        element?: {
+          render?: (opts: { div: string; tag: string }) => void;
+        };
+      };
+    };
+  };
+  __gcse?: { parsetags?: string; callback?: () => void };
+}
 
 function GoogleSearch() {
+  const rendered = useRef(false);
+
   useEffect(() => {
+    const w = window as GoogleCseWindow;
+    const tryRender = () => {
+      if (rendered.current) return;
+      if (typeof w.google?.search?.cse?.element?.render === 'function') {
+        w.google.search.cse.element.render({ div: 'gcse-search', tag: 'search' });
+        rendered.current = true;
+      }
+    };
+
+    w.__gcse = w.__gcse || {};
+    w.__gcse.parsetags = 'explicit';
+    w.__gcse.callback = tryRender;
+
     if (!document.getElementById('gcse-script')) {
-      const cx = '004488094107826005610:qizef8dq4is';
       const gcse = document.createElement('script');
       gcse.id = 'gcse-script';
-      gcse.type = 'text/javascript';
       gcse.async = true;
-      gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-      const s = document.getElementsByTagName('script')[0];
-      if (s && s.parentNode) {
-        s.parentNode.insertBefore(gcse, s);
-      }
+      gcse.src = `https://cse.google.com/cse.js?cx=${CX}`;
+      document.head.appendChild(gcse);
+    } else {
+      tryRender();
     }
+
+    return () => {
+      rendered.current = false;
+      document.querySelectorAll('.gsc-results-wrapper-overlay, .gsc-modal-background-image')
+        .forEach(el => el.remove());
+    };
   }, []);
 
   return (
-    <div className="glass-panel" style={{ marginTop: '2rem', padding: '1rem', minHeight: '400px', background: 'white' }}>
-      <h3 style={{ color: '#333', marginBottom: '1rem' }}>Google Video Search (Legacy)</h3>
-      <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '1rem' }}>
-        Tip: Copy the Video ID from the URL in the results and paste it into the Player.
+    <div className="glass-panel" style={{ marginTop: '2rem', padding: '1rem', minHeight: '400px' }}>
+      <h3 style={{ marginBottom: '0.5rem' }}>Google Web Search</h3>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: 1.6 }}>
+        Find a video, copy its <strong>Video ID</strong> from the URL (<code>watch?v=</code>), then paste it in the search bar above to play.
       </p>
-      <div className="gcse-search"></div>
+      <div id="gcse-search"></div>
     </div>
   );
 }

@@ -10,9 +10,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['vite.svg', 'preview.png'],
       manifest: {
-        name: 'YoTP Neo — Private YouTube Player',
+        name: 'YoTP Neo — Watch YouTube Videos Online at Work & School',
         short_name: 'YoTP Neo',
-        description: 'Privacy-focused YouTube player with proxy mode',
+        description:
+          'Free private YouTube player that works when YouTube is blocked at office, school or corporate networks. Proxy streaming, no ads, no tracking.',
         theme_color: '#09090b',
         background_color: '#09090b',
         display: 'standalone',

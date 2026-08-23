@@ -191,37 +191,133 @@ body::before {
   opacity: 1;
 }
 
-/* Google Search Fixes */
-.gsc-control-cse {
-  padding: 1em !important;
-  background-color: transparent !important;
+/* Google CSE Dark Theme */
+#gcse-search .gsc-control-cse {
+  background: transparent !important;
   border: none !important;
+  padding: 0 !important;
+}
+#gcse-search .gsc-input-box {
+  background: var(--input-bg) !important;
+  border-color: var(--glass-border) !important;
+  border-radius: 12px !important;
+  height: 38px;
+}
+#gcse-search .gsc-input-box:hover,
+#gcse-search .gsc-input-box-focus {
+  border-color: var(--accent-color) !important;
+}
+#gcse-search input.gsc-input {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+  font-family: inherit !important;
+  font-size: 0.9rem !important;
+  padding-left: 12px !important;
+}
+#gcse-search .gsc-search-button-v2 {
+  background: var(--accent-color) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 8px 16px !important;
+  height: 38px;
+  box-shadow: 0 0 10px rgba(100, 108, 255, 0.25) !important;
+}
+#gcse-search .gsc-search-button-v2 svg {
+  fill: #fff !important;
 }
 
-.gsc-input,
-.gsc-input-box,
-.gsc-input-box-hover,
-.gsc-input-box-focus {
-  background: #fff !important;
-  border-color: #ccc !important;
+/* Title — normal color, not accent (prevents over-highlighting) */
+.gsc-result .gs-title,
+.gsc-result .gs-title b {
+  color: var(--text-primary) !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+}
+/* URL line — make video ID visible */
+.gsc-result .gs-visibleUrl {
+  color: var(--accent-color) !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  background: rgba(100, 108, 255, 0.1) !important;
+  padding: 2px 8px !important;
+  border-radius: 4px !important;
+  display: inline-block !important;
+  margin-top: 2px !important;
+}
+/* Description */
+.gsc-result .gs-snippet {
+  color: var(--text-secondary) !important;
 }
 
-input.gsc-input {
-  color: #000 !important;
-  background-image: none !important;
+/* Pagination */
+.gsc-cursor-page {
+  color: var(--text-secondary) !important;
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  padding: 4px 12px !important;
+  margin: 0 3px !important;
+  text-decoration: none !important;
+}
+.gsc-cursor-current-page {
+  color: #fff !important;
+  background: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+}
+.gsc-cursor-box {
+  margin-top: 16px !important;
 }
 
+/* Results overlay — renders at document body level, not inside #gcse-search */
+/* Selectors must be global (no #gcse-search prefix) */
 .gsc-results-wrapper-overlay {
   top: 80px !important;
   overflow: auto !important;
+  background: var(--bg-dark) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5) !important;
 }
-
+/* Hide duplicate search bar inside results overlay */
+.gsc-results-wrapper-overlay .gsc-search-box,
+.gsc-results-wrapper-overlay > .gsc-search-box,
+.gsc-results-wrapper-overlay table.gsc-search-box,
+.gsc-results-wrapper-overlay .gsc-control-cse .gsc-search-box {
+  display: none !important;
+}
 .gsc-modal-background-image {
   display: none !important;
 }
-
 .gsc-overflow-hidden {
   overflow: auto !important;
+}
+/* Light mode overrides */
+body.light-mode .gsc-results-wrapper-overlay {
+  background: #fff !important;
+}
+body.light-mode .gsc-result .gs-title,
+body.light-mode .gsc-result .gs-title b {
+  color: #1a0dab !important;
+}
+body.light-mode .gsc-result .gs-visibleUrl {
+  color: #006621 !important;
+  background: transparent !important;
+}
+body.light-mode #gcse-search .gsc-results-wrapper-overlay {
+  background: #fff !important;
+}
+
+/* Keyboard hint */
+.key-hint {
+  font-family: monospace;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-color);
 }
 
 input {
@@ -377,6 +473,11 @@ button {
   padding: 0.5rem;
   cursor: pointer;
   transition: border-color 0.2s;
+}
+
+.queue-item-dragover {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-color) 40%, transparent);
 }
 
 .queue-item-thumb {

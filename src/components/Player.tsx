@@ -1,19 +1,31 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { sanitize } from '../utils/url';
 
-const QUALITY_OPTIONS = [
-  { label: 'Auto', value: 'best' },
-  { label: '1080p', value: 'best[height<=1080]' },
-  { label: '720p', value: 'best[height<=720]' },
-  { label: '480p', value: 'best[height<=480]' },
-];
-
 function Player() {
-  const { currentVideo, streamProxy, toggleStreamProxy } = useApp();
+  const {
+    currentVideo,
+    streamProxy,
+    toggleStreamProxy,
+    playNextInQueue,
+    autoplayNext,
+    toggleAutoplayNext,
+    queueCount,
+  } = useApp();
   const { id: videoId, type, title } = currentVideo;
   const [loading, setLoading] = useState(true);
-  const [quality, setQuality] = useState('best');
+  const [error, setError] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Reset loading/error state when the video changes — derived from a key-like
+  // signature instead of calling setState inside an effect.
+  const videoSignature = `${videoId}-${streamProxy}`;
+  const [lastSignature, setLastSignature] = useState(videoSignature);
+  if (videoSignature !== lastSignature) {
+    setLastSignature(videoSignature);
+    setLoading(true);
+    setError(false);
+  }
 
   if (!videoId) {
     return (
@@ -66,9 +78,12 @@ function Player() {
       >
         {streamProxy ? (
           <video
-            src={`/api/stream?id=${safeVideoId}&format=${encodeURIComponent(quality)}`}
+            ref={videoRef}
+            key={safeVideoId}
+            src={`/api/stream?id=${safeVideoId}`}
             controls
             autoPlay
+            playsInline
             style={{
               position: 'absolute',
               top: 0,
@@ -79,21 +94,23 @@ function Player() {
               background: '#000',
             }}
             onCanPlay={() => setLoading(false)}
-            onError={() => setLoading(false)}
+            onError={() => {
+              setLoading(false);
+              setError(true);
+            }}
+            onEnded={playNextInQueue}
           />
         ) : (
           <iframe
             src={embedUrl}
             title="YouTube video player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
               width: '100%',
               height: '100%',
+              border: 0,
             }}
             onLoad={() => setLoading(false)}
           />
@@ -103,7 +120,34 @@ function Player() {
             <div className="loading-spinner" />
           </div>
         )}
+        {error && (
+          <div
+            role="alert"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.75rem',
+              background: 'rgba(0,0,0,0.8)',
+              color: '#fff',
+              textAlign: 'center',
+              padding: '1rem',
+            }}
+          >
+            <p style={{ margin: 0 }}>⚠ Failed to load video in proxy mode.</p>
+            <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.7 }}>
+              Try a lower quality or switch to direct mode.
+            </p>
+            <button type="button" className="btn-primary" onClick={() => setError(false)}>
+              Retry
+            </button>
+          </div>
+        )}
       </div>
+
       <div
         style={{
           display: 'flex',
@@ -145,30 +189,13 @@ function Player() {
           >
             {streamProxy ? 'PROXY MODE' : 'DIRECT MODE'}
           </span>
-          {streamProxy && (
-            <select
-              value={quality}
-              onChange={(e) => setQuality(e.target.value)}
-              aria-label="Video quality"
-              style={{
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid var(--glass-border)',
-                borderRadius: '6px',
-                padding: '2px 4px',
-                color: 'var(--text-primary)',
-                fontSize: '0.75rem',
-                cursor: 'pointer',
-              }}
-            >
-              {QUALITY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value} style={{ background: '#222' }}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          )}
           <button
+            type="button"
             onClick={toggleStreamProxy}
+            role="switch"
+            aria-checked={streamProxy}
+            aria-label="Toggle proxy mode"
+            title="Toggle proxy mode (K)"
             style={{
               background: streamProxy ? 'var(--accent-color)' : 'rgba(255,255,255,0.1)',
               border: 'none',
@@ -193,8 +220,21 @@ function Player() {
               }}
             />
           </button>
+          <label
+            title="Automatically play the next queued video when this one ends"
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '0.7rem' }}
+          >
+            <input
+              type="checkbox"
+              checked={autoplayNext}
+              onChange={toggleAutoplayNext}
+              aria-label="Autoplay next in queue"
+              style={{ accentColor: 'var(--accent-color)', cursor: 'pointer' }}
+            />
+            Auto{queueCount > 0 ? ` (${queueCount})` : ''}
+          </label>
           <span
-            title="Proxy Mode uses auxiliary domains to bypass office blocks and quality throttling."
+            title="Proxy Mode pipes video through the server to bypass office blocks and quality throttling."
             style={{ cursor: 'help', fontSize: '0.8rem', opacity: 0.5 }}
           >
             ⓘ

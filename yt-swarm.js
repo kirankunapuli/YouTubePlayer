@@ -74,6 +74,56 @@ async function checkInstance(baseUrl, healthPath) {
 let healthyPiped = [...PIPED_INSTANCES];
 let healthyInvidious = [...INVIDIOUS_INSTANCES];
 
+// Track per-instance failure counts so instances that fail at request time
+// get demoted without waiting for the next periodic health check.
+const failureCounts = new Map(); // baseUrl -> consecutive failures
+const DEMOTE_THRESHOLD = 2;
+
+function recordFailure(baseUrl) {
+  const count = (failureCounts.get(baseUrl) || 0) + 1;
+  failureCounts.set(baseUrl, count);
+  if (count >= DEMOTE_THRESHOLD) {
+    healthyPiped = healthyPiped.filter((u) => u !== baseUrl);
+    healthyInvidious = healthyInvidious.filter((u) => u !== baseUrl);
+    console.warn(`[Swarm] Demoted instance after ${count} failures: ${baseUrl}`);
+  }
+}
+
+function recordSuccess(baseUrl) {
+  failureCounts.delete(baseUrl);
+}
+
+// Periodic re-check so dead instances don't cause 8-10s timeouts forever.
+const HEALTH_RECHECK_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+let healthCheckTimer = null;
+
+export function startHealthCheckInterval() {
+  if (healthCheckTimer) return;
+  healthCheckTimer = setInterval(() => {
+    runSwarmHealthCheck().catch((err) =>
+      console.error('[Swarm] Periodic health check failed:', err.message)
+    );
+  }, HEALTH_RECHECK_INTERVAL_MS);
+  // Don't keep the process alive just for this timer
+  healthCheckTimer.unref();
+}
+
+export function stopHealthCheckInterval() {
+  if (healthCheckTimer) {
+    clearInterval(healthCheckTimer);
+    healthCheckTimer = null;
+  }
+}
+
+export function getSwarmStatus() {
+  return {
+    pipedHealthy: healthyPiped.length,
+    pipedTotal: PIPED_INSTANCES.length,
+    invidiousHealthy: healthyInvidious.length,
+    invidiousTotal: INVIDIOUS_INSTANCES.length,
+  };
+}
+
 /**
  * Run a one-time health check against all Piped and Invidious instances.
  */
@@ -97,6 +147,7 @@ export async function runSwarmHealthCheck() {
 
     healthyPiped = pipedResults.filter(Boolean);
     healthyInvidious = invidiousResults.filter(Boolean);
+    failureCounts.clear();
 
     console.log(`[Swarm] Health check done. ${healthyPiped.length}/${PIPED_INSTANCES.length} Piped, ${healthyInvidious.length}/${INVIDIOUS_INSTANCES.length} Invidious instances healthy.`);
 
@@ -115,7 +166,7 @@ async function searchWithYtDlp(query) {
     // try to JSON.parse the NDJSON output and fail on multiple lines.
     const { stdout, exitCode } = await youtubedl.exec(
         `ytsearch20:${query}`,
-        { dumpJson: true, flatPlaylist: true, noWarnings: true, noCallHome: true, preferFreeFormats: true },
+        { dumpJson: true, flatPlaylist: true, noWarnings: true, preferFreeFormats: true, jsRuntimes: 'node' },
     );
     if (exitCode !== 0) throw new Error('yt-dlp exited with code ' + exitCode);
     const lines = stdout.trim().split('\n').filter(Boolean);
@@ -136,9 +187,13 @@ async function searchWithYtDlp(query) {
 /**
  * Races multiple search providers to find video results.
  * Falls back to yt-dlp search if all API providers fail.
+ * Losing providers are aborted once a winner is found.
  */
 export async function searchSwarm(query) {
     console.log(`[Swarm] Searching for: "${query}"`);
+
+    const controller = new AbortController();
+    const { signal } = controller;
 
     // Tier 1: API providers (race them all)
     const apiProviders = [
@@ -146,32 +201,44 @@ export async function searchSwarm(query) {
         (async () => {
             const results = await YouTube.search(query, { limit: 20, type: 'video' });
             if (!results || results.length === 0) throw new Error('youtube-sr no results');
-            console.log('[Swarm] ✅ youtube-sr responded first');
+            controller.abort(); // cancel losing fetches
             return results.map(item => standardize(item, 'youtube-sr'));
         })(),
 
         // Healthy Piped instances
         ...healthyPiped.map(async (baseUrl) => {
-            const res = await fetch(`${baseUrl}/search?q=${encodeURIComponent(query)}&filter=videos`, {
-                signal: AbortSignal.timeout(8000)
-            });
-            if (!res.ok) throw new Error(`Status ${res.status}`);
-            const data = await res.json();
-            if (!data.items || data.items.length === 0) throw new Error('No items');
-            console.log(`[Swarm] ✅ Piped (${baseUrl}) responded first`);
-            return data.items.map(item => standardize(item, 'piped'));
+            try {
+                const res = await fetch(`${baseUrl}/search?q=${encodeURIComponent(query)}&filter=videos`, {
+                    signal: AbortSignal.any([signal, AbortSignal.timeout(8000)]),
+                });
+                if (!res.ok) throw new Error(`Status ${res.status}`);
+                const data = await res.json();
+                if (!data.items || data.items.length === 0) throw new Error('No items');
+                recordSuccess(baseUrl);
+                controller.abort(); // cancel losing fetches
+                return data.items.map(item => standardize(item, 'piped'));
+            } catch (err) {
+                if (!signal.aborted) recordFailure(baseUrl);
+                throw err;
+            }
         }),
 
         // Healthy Invidious instances
         ...healthyInvidious.map(async (baseUrl) => {
-            const res = await fetch(`${baseUrl}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
-                signal: AbortSignal.timeout(10000)
-            });
-            if (!res.ok) throw new Error(`Status ${res.status}`);
-            const data = await res.json();
-            if (!Array.isArray(data) || data.length === 0) throw new Error('No items');
-            console.log(`[Swarm] ✅ Invidious (${baseUrl}) responded first`);
-            return data.slice(0, 20).map(item => standardize(item, 'invidious'));
+            try {
+                const res = await fetch(`${baseUrl}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
+                    signal: AbortSignal.any([signal, AbortSignal.timeout(10000)]),
+                });
+                if (!res.ok) throw new Error(`Status ${res.status}`);
+                const data = await res.json();
+                if (!Array.isArray(data) || data.length === 0) throw new Error('No items');
+                recordSuccess(baseUrl);
+                controller.abort(); // cancel losing fetches
+                return data.slice(0, 20).map(item => standardize(item, 'invidious'));
+            } catch (err) {
+                if (!signal.aborted) recordFailure(baseUrl);
+                throw err;
+            }
         }),
     ];
 

@@ -1,0 +1,5 @@
+# YoTP Neo — allow all crawlers
+User-agent: *
+Allow: /
+
+Sitemap: https://yotpneo.onrender.com/sitemap.xml
