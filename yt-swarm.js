@@ -2,6 +2,31 @@ import YouTubeSr from 'youtube-sr';
 import youtubedl from 'youtube-dl-exec';
 const YouTube = YouTubeSr.default || YouTubeSr;
 
+/** Format a duration in seconds as M:SS or H:MM:SS. */
+export function formatDuration(seconds) {
+    const s = Number(seconds);
+    if (!Number.isFinite(s) || s < 0) return undefined;
+    const total = Math.round(s);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const sec = total % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    return `${m}:${String(sec).padStart(2, '0')}`;
+}
+
+/** Normalize a duration from any provider (seconds, ms, or pre-formatted string). */
+export function normalizeDuration(value) {
+    if (value == null) return undefined;
+    if (typeof value === 'number') {
+        // youtube-sr reports milliseconds; Piped/Invidious report seconds.
+        return formatDuration(value >= 100000 ? value / 1000 : value);
+    }
+    if (typeof value === 'string' && /^\d+$/.test(value)) {
+        return formatDuration(Number(value));
+    }
+    return value; // already formatted like "3:45"
+}
+
 /** Standardize search results from various providers into a single format. */
 export function standardize(item, source) {
     if (source === 'youtube-sr') {
@@ -11,7 +36,7 @@ export function standardize(item, source) {
             title: item.title,
             thumbnail: item.thumbnail?.url,
             uploaderName: item.channel?.name,
-            duration: item.duration_formatted,
+            duration: normalizeDuration(item.duration_formatted ?? item.duration),
             uploaded: item.uploadedAt,
         };
     }
@@ -22,7 +47,7 @@ export function standardize(item, source) {
             title: item.title,
             thumbnail: item.thumbnail,
             uploaderName: item.uploaderName,
-            duration: item.duration,
+            duration: normalizeDuration(item.duration),
             uploaded: item.uploadedDate,
         };
     }
@@ -33,7 +58,7 @@ export function standardize(item, source) {
             title: item.title,
             thumbnail: item.videoThumbnails?.[0]?.url || `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`,
             uploaderName: item.author,
-            duration: item.duration,
+            duration: normalizeDuration(item.duration),
             uploaded: item.publishedText,
         };
     }

@@ -33,7 +33,20 @@ describe('standardize', () => {
     expect(result.url).toBe(input.url);
     expect(result.title).toBe('Piped Video');
     expect(result.uploaderName).toBe('PipedChannel');
-    expect(result.duration).toBe(225);
+    expect(result.duration).toBe('3:45');
+  });
+
+  it('formats piped duration over an hour as H:MM:SS', () => {
+    const input = {
+      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      title: 'Long Video',
+      thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+      uploaderName: 'PipedChannel',
+      duration: 3675,
+      uploadedDate: '2024-01-15',
+    };
+    const result = standardize(input, 'piped');
+    expect(result.duration).toBe('1:01:15');
   });
 
   it('standardizes invidious format', () => {
@@ -49,7 +62,7 @@ describe('standardize', () => {
     expect(result.url).toContain('dQw4w9WgXcQ');
     expect(result.title).toBe('Invidious Video');
     expect(result.uploaderName).toBe('InvChannel');
-    expect(result.duration).toBe(210);
+    expect(result.duration).toBe('3:30');
     expect(result.uploaded).toBe('3 months ago');
   });
 
