@@ -75,10 +75,21 @@ function Navbar() {
         borderBottom: '1px solid var(--glass-border)',
       }}
     >
-      {/* Branding */}
-      <div
+      {/* Branding — click to reset to home (clears deep-link ?v=, reloads app) */}
+      <a
+        href="/"
         className="logo navbar-logo"
-        style={{ fontSize: '1.4rem', fontWeight: 800, whiteSpace: 'nowrap' }}
+        style={{
+          fontSize: '1.4rem',
+          fontWeight: 800,
+          whiteSpace: 'nowrap',
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          cursor: 'pointer',
+        }}
+        aria-label="YoTP Neo — go to home"
+        title="Go to home"
       >
         <span style={{ color: 'var(--text-primary)' }}>YoTP</span>
         <span
@@ -90,7 +101,7 @@ function Navbar() {
         >
           Neo
         </span>
-      </div>
+      </a>
 
       {/* Dynamic Nav Items */}
       <div
