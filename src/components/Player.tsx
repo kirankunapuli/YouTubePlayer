@@ -1,6 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { sanitize } from '../utils/url';
+
+// Direct-mode embeds can silently fail (e.g. blocked networks, sandboxed iframe
+// hosts, or YouTube refusing autoplay). If the embed hasn't loaded after this
+// long, auto-switch to proxy mode so the video still plays.
+const DIRECT_EMBED_TIMEOUT_MS = 8000;
 
 function Player() {
   const {
@@ -26,6 +31,20 @@ function Player() {
     setLoading(true);
     setError(false);
   }
+
+  // Auto-fallback: if the direct-mode iframe never fires onLoad (embed blocked
+  // or aborted), switch to proxy mode after a timeout.
+  const embedLoadedRef = useRef(false);
+  useEffect(() => {
+    if (streamProxy || !videoId) return;
+    embedLoadedRef.current = false;
+    const timer = setTimeout(() => {
+      if (!embedLoadedRef.current) {
+        toggleStreamProxy();
+      }
+    }, DIRECT_EMBED_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [videoId, streamProxy, toggleStreamProxy]);
 
   if (!videoId) {
     return (
@@ -112,7 +131,10 @@ function Player() {
               height: '100%',
               border: 0,
             }}
-            onLoad={() => setLoading(false)}
+            onLoad={() => {
+              embedLoadedRef.current = true;
+              setLoading(false);
+            }}
           />
         )}
         {loading && (

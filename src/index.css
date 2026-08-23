@@ -486,6 +486,9 @@ button {
   align-items: center;
   gap: 4px;
   letter-spacing: 0.5px;
+  background: #cc0000 !important;
+  color: #fff !important;
+  font-weight: 700 !important;
 }
 
 .live-badge::before {
