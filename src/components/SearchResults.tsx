@@ -66,13 +66,15 @@ function SearchResults() {
                 )}
                 {video.duration && (
                   <div
-                    className="duration-badge"
+                    className={`duration-badge${video.isLive ? ' live-badge' : ''}`}
                     style={{
                       position: 'absolute',
                       bottom: '5px',
                       right: '5px',
-                      background: 'rgba(0,0,0,0.8)',
-                      padding: '2px 4px',
+                      background: video.isLive ? '#ff0000' : 'rgba(0,0,0,0.8)',
+                      color: video.isLive ? '#fff' : undefined,
+                      fontWeight: video.isLive ? 700 : undefined,
+                      padding: '2px 6px',
                       borderRadius: '4px',
                       fontSize: '0.8rem',
                     }}

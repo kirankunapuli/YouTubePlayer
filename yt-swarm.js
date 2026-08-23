@@ -27,42 +27,60 @@ export function normalizeDuration(value) {
     return value; // already formatted like "3:45"
 }
 
+/**
+ * Providers signal live streams with a zero/null duration.
+ * Returns true when the result is (very likely) a live stream.
+ */
+export function isLiveResult(item) {
+    const d = item.duration;
+    if (item.live || item.isLive) return true;
+    if (d === 0 || d === '0' || d === '0:00' || d == null) return true;
+    return false;
+}
+
 /** Standardize search results from various providers into a single format. */
 export function standardize(item, source) {
+    const live = isLiveResult(item);
+    let rawDuration = item.duration;
+    if (source === 'youtube-sr') {
+        rawDuration = item.duration_formatted ?? item.duration;
+    }
+    const duration = live ? 'LIVE' : normalizeDuration(rawDuration);
+    const base = { duration, isLive: live };
     if (source === 'youtube-sr') {
         return {
+            ...base,
             url: item.url,
             type: 'video',
             title: item.title,
             thumbnail: item.thumbnail?.url,
             uploaderName: item.channel?.name,
-            duration: normalizeDuration(item.duration_formatted ?? item.duration),
             uploaded: item.uploadedAt,
         };
     }
     if (source === 'piped') {
         return {
+            ...base,
             url: 'https://www.youtube.com/watch?v=' + (item.url.split('v=')[1] || item.url),
             type: 'video',
             title: item.title,
             thumbnail: item.thumbnail,
             uploaderName: item.uploaderName,
-            duration: normalizeDuration(item.duration),
             uploaded: item.uploadedDate,
         };
     }
     if (source === 'invidious') {
         return {
+            ...base,
             url: 'https://www.youtube.com/watch?v=' + item.videoId,
             type: 'video',
             title: item.title,
             thumbnail: item.videoThumbnails?.[0]?.url || `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`,
             uploaderName: item.author,
-            duration: normalizeDuration(item.duration),
             uploaded: item.publishedText,
         };
     }
-    return item;
+    return { ...item, ...base };
 }
 
 const PIPED_INSTANCES = [

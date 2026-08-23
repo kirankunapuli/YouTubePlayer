@@ -10,6 +10,7 @@ interface SearchResultItem {
   uploaderName?: string;
   author?: string;
   duration?: number | string;
+  isLive?: boolean;
   uploaded?: string;
   videoId?: string;
   videoThumbnails?: { url?: string }[];

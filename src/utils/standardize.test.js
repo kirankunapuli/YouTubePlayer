@@ -8,6 +8,7 @@ describe('standardize', () => {
       title: 'Test Video',
       thumbnail: { url: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg' },
       channel: { name: 'TestChannel' },
+      duration: 225000,
       duration_formatted: '3:45',
       uploadedAt: '2 years ago',
     };
@@ -17,6 +18,7 @@ describe('standardize', () => {
     expect(result.thumbnail).toBe(input.thumbnail.url);
     expect(result.uploaderName).toBe('TestChannel');
     expect(result.duration).toBe('3:45');
+    expect(result.isLive).toBe(false);
     expect(result.uploaded).toBe('2 years ago');
   });
 
@@ -47,6 +49,21 @@ describe('standardize', () => {
     };
     const result = standardize(input, 'piped');
     expect(result.duration).toBe('1:01:15');
+    expect(result.isLive).toBe(false);
+  });
+
+  it('marks zero-duration results as LIVE', () => {
+    const input = {
+      url: 'https://www.youtube.com/watch?v=rFZHOHl-L8A',
+      title: 'Live Stream',
+      thumbnail: { url: 'https://i.ytimg.com/vi/rFZHOHl-L8A/hqdefault.jpg' },
+      channel: { name: 'Lofi Girl' },
+      duration: 0,
+      uploadedAt: null,
+    };
+    const result = standardize(input, 'youtube-sr');
+    expect(result.isLive).toBe(true);
+    expect(result.duration).toBe('LIVE');
   });
 
   it('standardizes invidious format', () => {
@@ -78,7 +95,9 @@ describe('standardize', () => {
   });
 
   it('returns raw item for unknown source', () => {
-    const input = { foo: 'bar' };
-    expect(standardize(input, 'unknown')).toBe(input);
+    const input = { foo: 'bar', duration: 120 };
+    const result = standardize(input, 'unknown');
+    expect(result.foo).toBe('bar');
+    expect(result.duration).toBe('2:00');
   });
 });
